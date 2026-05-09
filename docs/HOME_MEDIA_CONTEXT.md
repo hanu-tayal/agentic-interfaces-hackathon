@@ -101,6 +101,7 @@ Examples:
 - If school theme is "Gardening", connect it to food songs, colors, plant growth, and simple counting.
 - If the daycare report mentions responsibility, connect it to cleanup, recycling, brushing teeth, and putting one book away.
 - If bedtime needs to be calm, transform high-energy vehicle content into low-energy talk prompts: count wheels, whisper vehicle sounds, imagine a truck going to sleep.
+- If video time is allowed, recommend only a small parent-approved set of videos that map to the school theme and include after-watching print/play prompts.
 
 ## Generated UI Modules To Add
 
@@ -112,6 +113,7 @@ Useful modules for the app:
 - Song Prompt: suggests a short familiar song or rhyme without embedding videos.
 - Parent Translation: gives exact bedtime language using the child's interests.
 - Media Boundary: makes clear the app is not starting more video at bedtime.
+- Guided Video Rail: recommends better learning videos when video time is allowed, with parent approval and a clear stop point.
 
 ## Demo Addition
 

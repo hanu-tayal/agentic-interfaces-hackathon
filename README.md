@@ -10,6 +10,8 @@ Product brief: [docs/PRODUCT_BRIEF.md](docs/PRODUCT_BRIEF.md)
 
 Build decision: [docs/BUILD_DECISION.md](docs/BUILD_DECISION.md)
 
+Demo plan: [docs/DEMO_PLAN.md](docs/DEMO_PLAN.md)
+
 Daycare bedtime context: [docs/DAYCARE_BEDTIME_CONTEXT.md](docs/DAYCARE_BEDTIME_CONTEXT.md)
 
 Home media context: [docs/HOME_MEDIA_CONTEXT.md](docs/HOME_MEDIA_CONTEXT.md)
@@ -21,6 +23,8 @@ Print delivery requirement: [docs/PRINT_DELIVERY_REQUIREMENT.md](docs/PRINT_DELI
 Toy commerce requirement: [docs/TOY_COMMERCE_REQUIREMENT.md](docs/TOY_COMMERCE_REQUIREMENT.md)
 
 Voice output requirement: [docs/VOICE_OUTPUT_REQUIREMENT.md](docs/VOICE_OUTPUT_REQUIREMENT.md)
+
+YouTube learning requirement: [docs/YOUTUBE_LEARNING_REQUIREMENT.md](docs/YOUTUBE_LEARNING_REQUIREMENT.md)
 
 ## Hackathon Target
 

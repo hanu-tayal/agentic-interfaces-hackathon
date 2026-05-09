@@ -53,6 +53,7 @@ The agent can generate different UI modules depending on the daycare report:
 - Digital story mode: tappable/read-aloud story cards for the demo and for parent-guided use.
 - Voice companion: calm narration, read-aloud support, or call-and-response prompts.
 - Home interest bridge: connects school themes to known interests such as garbage trucks, recycling, sports, vehicles, and songs.
+- Guided video rail: parent-approved YouTube recommendations or generated video scripts that reinforce school learning.
 - Toy match: age-appropriate toy/book/activity recommendations tied to school themes and home interests.
 - Tomorrow follow-up: one tiny activity for the next morning.
 - Parent script: exact words to say, with calmer/funnier/shorter variants.
@@ -163,6 +164,23 @@ Hackathon MVP:
 - Show transcript and AI-generated audio disclosure.
 - Do not imitate YouTube creators or clone private voices.
 
+### Guided YouTube Learning Rail
+
+Use cases:
+
+- Recommend 3-5 existing videos that reinforce the daycare theme.
+- Convert home interests like garbage trucks, Blippi-style learning, Super Simple songs, sports, and vehicles into better educational choices.
+- Add parent watch-together prompts and after-watching print/play activities.
+- Generate a parent-owned video script or storyboard for future custom learning content.
+
+Hackathon MVP:
+
+- Use a seeded or mocked video catalog for reliable demo.
+- Show video cards with learning goal, reason, safety notes, and parent approval.
+- Include an explicit stop point so it does not become an infinite feed.
+- Do not auto-play videos.
+- Do not upload generated videos to YouTube in the MVP.
+
 ## MVP Scope
 
 Build a local web app that demonstrates:
@@ -170,7 +188,7 @@ Build a local web app that demonstrates:
 1. User chooses a sanitized daycare report or imports recent school context.
 2. Agent extracts meals, activities, themes, and developmental goals.
 3. Agent generates a UI schema for tonight's bedtime teaching plan.
-4. App renders interactive modules: story, prompts, food card, mini lesson, movement, print pack, voice companion, toy match, parent script, evidence.
+4. App renders interactive modules: story, prompts, food card, mini lesson, movement, print pack, voice companion, guided video recommendations, toy match, parent script, evidence.
 5. User changes tone/duration and sees the surface regenerate.
 6. User chooses digital, print, or audio output.
 
@@ -187,6 +205,7 @@ Build a local web app that demonstrates:
    - movement/emotion prompts
    - print pack preview
    - listen/read-aloud controls
+   - guided video recommendation cards
    - toy/book recommendation card
    - tomorrow follow-up
    - source evidence chips
@@ -195,8 +214,9 @@ Build a local web app that demonstrates:
 6. Click "make printable".
 7. Switch between digital, print, and listen modes.
 8. Click "listen calmly".
-9. Click "find a hands-on toy".
-10. Approve a mock purchase and show that the UI generates a receipt/audit trail without real spending.
+9. Click "recommend learning videos".
+10. Click "find a hands-on toy".
+11. Approve a mock purchase and show that the UI generates a receipt/audit trail without real spending.
 
 ## Why This Is Generative UI
 
@@ -215,6 +235,7 @@ The core product claim is:
 - At least one parent script/talk prompt module is shown.
 - A printable page or mini-book preview is shown.
 - A voice/read-aloud companion is shown.
+- A guided video recommendation rail is shown with parent approval and a stop point.
 - A toy/book recommendation and mock purchase approval card are shown.
 - Source evidence is visible without exposing raw private email.
 - The app can run locally from the public repo.
@@ -230,13 +251,15 @@ The core product claim is:
 - Automated KDP publishing.
 - Real purchases without explicit parent approval.
 - Voice cloning or creator imitation without explicit consent.
+- Automated YouTube uploading.
+- Infinite autoplay or unreviewed video recommendations.
 - Encouraging more bedtime video watching.
 
 ## Submission Metadata Draft
 
 - Project name: Bedtime School Bridge
 - Pitch: Bedtime School Bridge turns daycare emails and home interests into digital, printable, and audio bedtime learning experiences, helping parents reinforce school learning without defaulting to passive video.
-- Protocols used: CopilotKit/AG-UI for agent-to-frontend interaction, A2UI-style declarative UI schema for generated bedtime modules, optional MCP/Gmail rail for email context, AP2/x402-inspired mock commerce rail for parent-approved purchases.
+- Protocols used: CopilotKit/AG-UI for agent-to-frontend interaction, A2UI-style declarative UI schema for generated bedtime modules, optional MCP/Gmail rail for email context, YouTube Data API-ready recommendation rail, AP2/x402-inspired mock commerce rail for parent-approved purchases.
 - Team roles: TBD.
 
 Previous concept note: this repo originally explored ErrandOS, a broad life-admin cockpit. The current build target is the narrower daycare-to-bedtime product because it is more personal, privacy-aware, and demoable within the hackathon window.

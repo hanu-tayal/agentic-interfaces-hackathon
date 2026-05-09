@@ -47,7 +47,7 @@ Keep model use behind the starter kit's model-switching seam so the team can fal
 
 Use a mixed strategy:
 
-- Controlled components for sensitive input/output/action rails: Gmail import, source evidence, privacy notices, print export, voice playback, publishing-readiness controls, toy recommendations, and purchase approvals.
+- Controlled components for sensitive input/output/action rails: Gmail import, source evidence, privacy notices, print export, voice playback, guided video recommendations, publishing-readiness controls, toy recommendations, and purchase approvals.
 - Declarative/A2UI-style generated layouts for flexible bedtime modules, digital story cards, school-theme cards, food prompts, movement prompts, print views, voice controls, and parent scripts.
 - MCP Apps/open-ended UI only as a bonus surface if the core app is stable.
 
@@ -116,6 +116,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - home-interest match
    - print-pack preview
    - voice/read-aloud companion
+   - guided video recommendation cards
    - toy/book recommendation
    - purchase approval card
    - parent script
@@ -128,6 +129,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - print controls with browser/OS print handoff
    - digital/print/audio mode switcher
    - voice controls
+   - video recommendation controls
    - toy budget/category controls
    - source evidence summary
 5. Demo path:
@@ -139,12 +141,13 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - generate a printable page or mini-book
    - show the polished digital bedtime activity view
    - play a calm generated narration
+   - recommend a parent-approved learning video set
    - approve a mock toy/book purchase
    - show evidence chips and privacy posture
 
 ## What To Avoid
 
-- Do not spend the first hour integrating production Gmail sync, YouTube history export, direct KDP publishing, premium TTS providers, or real payment execution.
+- Do not spend the first hour integrating production Gmail sync, YouTube history export, YouTube upload, direct KDP publishing, premium TTS providers, or real payment execution.
 - Do not build a plain chatbot with a static task board.
 - Do not make the app depend on private coupon codes or attendee-only setup to run.
 - Do not commit raw emails, child photos, photo links, raw watch history, or account identifiers.
@@ -152,6 +155,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
 - Do not move real money in the hackathon demo.
 - Do not clone voices or imitate YouTube creators.
 - Do not require a configured printer for the MVP.
+- Do not create an autoplay feed or unreviewed YouTube recommendations.
 - Do not introduce Gas City/gstack as mandatory dependencies unless they directly speed the team today.
 
 ## Build Plan
@@ -161,10 +165,11 @@ Replace the starter's sample domain with Bedtime School Bridge:
 3. Rename and retheme to Bedtime School Bridge.
 4. Replace sample Notion leads data with sanitized daycare/home-interest mock data.
 5. Implement generated UI module schema and renderer.
-6. Add controlled input/evidence/action cards for daycare report, curriculum, home interests, print export, voice playback, toy recommendations, mock purchase approval, and privacy.
-7. Add demo prompt and README setup instructions.
-8. Run local build/lint/smoke test.
-9. Record demo.
+6. Add controlled input/evidence/action cards for daycare report, curriculum, home interests, print export, voice playback, guided video recommendations, toy recommendations, mock purchase approval, and privacy.
+7. Add the exact demo path from `docs/DEMO_PLAN.md`.
+8. Add demo prompt and README setup instructions.
+9. Run local build/lint/smoke test.
+10. Record the required 2-3 minute demo video.
 
 ## Decision
 
