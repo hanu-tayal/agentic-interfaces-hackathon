@@ -12,6 +12,8 @@ Build decision: [docs/BUILD_DECISION.md](docs/BUILD_DECISION.md)
 
 Demo plan: [docs/DEMO_PLAN.md](docs/DEMO_PLAN.md)
 
+Winning demo strategy: [docs/WINNING_DEMO_STRATEGY.md](docs/WINNING_DEMO_STRATEGY.md)
+
 Daycare bedtime context: [docs/DAYCARE_BEDTIME_CONTEXT.md](docs/DAYCARE_BEDTIME_CONTEXT.md)
 
 Home media context: [docs/HOME_MEDIA_CONTEXT.md](docs/HOME_MEDIA_CONTEXT.md)
