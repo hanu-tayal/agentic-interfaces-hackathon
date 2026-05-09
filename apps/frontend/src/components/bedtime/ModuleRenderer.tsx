@@ -124,7 +124,7 @@ function StoryScene({ module: m, hero }: { module: GeneratedModule; hero?: boole
       badgeBg="bg-white/80 text-[#3d2f0c]"
       badge={<><BookOpen className="h-3.5 w-3.5" /> Bedtime book</>}
     >
-      <div className="relative min-h-[280px] md:min-h-[340px]">
+      <div className="relative min-h-[400px] md:min-h-[500px]">
         {/* Ambient layered decorations — sit behind hero emoji (z-0) */}
         {/* Drifting cloud */}
         <motion.span

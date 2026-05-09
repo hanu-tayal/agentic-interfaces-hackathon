@@ -174,7 +174,7 @@ export default function HomePage() {
             <p className="text-sm font-semibold opacity-80">{generated.generatedBy}</p>
           </div>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           {(["balanced", "calmer", "sillier"] as Tone[]).map((t) => (
             <button
               key={t}
@@ -182,7 +182,7 @@ export default function HomePage() {
                 setTone(t);
                 void buildBridge(t);
               }}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition ${tone === t ? "bg-black/80 text-white shadow-md" : tone === "calmer" ? "border border-white/20 text-white/70 hover:bg-white/10" : "border border-black/10 text-current/70 hover:bg-white/30"}`}
+              className={`rounded-full px-5 py-2.5 text-base font-bold transition ${tone === t ? "bg-black/80 text-white shadow-md scale-105" : tone === "calmer" ? "border border-white/30 text-white/80 hover:bg-white/10" : "border border-black/15 text-current/80 hover:bg-white/30"}`}
             >
               {t}
             </button>
@@ -190,14 +190,14 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Two simple tabs */}
+      {/* Two simple tabs - bigger */}
       <div className="px-6 md:px-10">
-        <div className={`mx-auto flex max-w-md gap-1 rounded-full p-1 ${tone === "calmer" ? "bg-white/10 backdrop-blur" : "bg-white/70 backdrop-blur"}`}>
+        <div className={`mx-auto flex max-w-2xl gap-1 rounded-full p-1.5 ${tone === "calmer" ? "bg-white/10 backdrop-blur" : "bg-white/70 backdrop-blur"}`}>
           {([["digital", "Tonight"], ["voice", "Listen"]] as const).map(([v, label]) => (
             <button
               key={v}
               onClick={() => setMode(v)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-bold transition ${mode === v ? (tone === "calmer" ? "bg-white text-[#1a2540]" : "bg-black text-white") : "opacity-70 hover:opacity-100"}`}
+              className={`flex-1 rounded-full px-6 py-3 text-base font-bold transition ${mode === v ? (tone === "calmer" ? "bg-white text-[#1a2540]" : "bg-black text-white") : "opacity-70 hover:opacity-100"}`}
             >
               {label}
             </button>
@@ -205,9 +205,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="px-6 pb-32 pt-6 md:px-10">
-        <div className="mx-auto max-w-4xl">
+      {/* Canvas - wider, bigger */}
+      <div className="px-4 pb-36 pt-6 md:px-8 lg:px-12">
+        <div className="mx-auto max-w-6xl">
           {mode === "digital" && (
             <DigitalCanvas modules={screenModules} isGenerating={isGenerating} empty={visibleModules.length === 0} />
           )}

@@ -49,7 +49,11 @@ export function createFallbackInterface(req: GenerateRequest): GeneratedInterfac
       kind: "story",
       renderer: "bedtime-story",
       title: short ? "Tiny story" : "Bedtime story",
-      body: `${truckName} the recycling truck wanted to move like school today. First, the truck hopped over quiet lily pads. Then it rolled ${tempo} past a basketball court, counted green beans like little wheels, and parked under a watermelon moon. Before sleep, ${truckName} put one book away because responsible helpers finish with a clean space.`,
+      body: calm
+        ? `${truckName} the truck rolled all day. ${truckName} saw a basketball bouncing. ${truckName} hopped over a puddle. The sun went down. The moon came up. ${truckName} parked. ${truckName} closed his eyes. Goodnight, ${truckName}.`
+        : silly
+          ? `${truckName} the truck loved to wiggle! Wiggle wiggle past the basketball! Bounce bounce over the puddle! Round and round his big green wheels! Then ${truckName} found his soft spot. Wiggle to sleep, ${truckName}.`
+          : `${truckName} the truck had a big day. He rolled past a basketball. He hopped over a puddle. He carried green beans home for dinner. The moon came up, big and round. ${truckName} parked his wheels. Time to sleep, ${truckName}.`,
       evidence: ["weekly theme", "daily activities", "meals", "home interests"],
       width: short ? "full" : "half",
       priority: 95,
@@ -58,10 +62,10 @@ export function createFallbackInterface(req: GenerateRequest): GeneratedInterfac
       id: "prompts",
       kind: "prompt",
       renderer: "talk-prompts",
-      title: short ? "Three quick questions" : "Parent talk prompts",
+      title: "Talk together",
       body: short
-        ? "Can you show a sleepy face? Can your hands hop once? What color was the watermelon?"
-        : "Ask about hopping, fast and slow bodies, proud helper faces, green beans, and how a recycling truck can be responsible.",
+        ? "Can you show me sleepy eyes? Can you hop one time? What color is the moon?"
+        : "What did the truck see today? Can you make your wheels go round? Show me your sleepy face. What did you eat at school?",
       evidence: ["daily activities", "meals", "character theme"],
       width: "half",
       priority: 80,
@@ -70,8 +74,8 @@ export function createFallbackInterface(req: GenerateRequest): GeneratedInterfac
       id: "food",
       kind: "food",
       renderer: "food-card",
-      title: "Food learning card",
-      body: "Green beans grow on plants, rice is a tiny grain, and watermelon is full of water. Tonight's line: 'You ate green beans today. Can we count pretend beans on your fingers?'",
+      title: "Tap the foods",
+      body: "Green beans, rice, and watermelon. Tap each one. Can you count them?",
       evidence: ["meals"],
       width: "third",
       priority: 50,
@@ -80,10 +84,10 @@ export function createFallbackInterface(req: GenerateRequest): GeneratedInterfac
       id: "movement",
       kind: "movement",
       renderer: "movement-game",
-      title: calm ? "Quiet body activity" : "Movement bridge",
+      title: calm ? "Quiet moves" : "Move with the truck",
       body: calm
-        ? "Whisper three movements: tiny hop, slow roll, sleepy stop."
-        : "Try one safe pre-bed sequence: hop once, twist hands, freeze like red light, then park the truck for sleep.",
+        ? "Tiny hop. Slow roll. Sleepy stop. Big yawn."
+        : "Hop one time. Wiggle your hands. Freeze like a red light. Park the truck for sleep.",
       evidence: ["weekly theme", "daily activities", "home interests"],
       width: "third",
       priority: silly ? 90 : 40,
@@ -92,8 +96,8 @@ export function createFallbackInterface(req: GenerateRequest): GeneratedInterfac
       id: "voice",
       kind: "voice",
       renderer: "voice-player",
-      title: "Listen mode",
-      body: "A calm 45-second narration with transcript. Uses browser speech for the demo and avoids creator imitation.",
+      title: "Listen to the story",
+      body: "Tap to hear Riley the truck's bedtime story.",
       evidence: ["weekly theme", "home interests"],
       width: "half",
       priority: calm ? 85 : 30,
