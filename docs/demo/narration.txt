@@ -1,0 +1,19 @@
+Bedtime School Bridge.
+
+A parent walks up to the iPad. They tell the agent about today.
+
+The agent generates the bedtime interface for tonight.
+
+A tap-through illustrated picture book. With auto-narration. Designed for a two and a half year old who cannot read.
+
+Switch the tone. Make it calmer. The interface re-organizes itself. Dark night sky. Listen-first layout.
+
+Switch to silly. Bright sun. Movement-first.
+
+Tap the story page. Watch it advance. Tap the play button. Hear the narration.
+
+This is generative U I. The agent decided which modules exist, what their renderers are, and how the layout shapes. Same context, fundamentally different interface for different tones.
+
+Built on Next dot js, with Gemini through Vertex A I, on the CopilotKit hackathon starter.
+
+Bedtime School Bridge.

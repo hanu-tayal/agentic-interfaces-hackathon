@@ -30,7 +30,11 @@ https://github.com/hanu-tayal/agentic-interfaces-hackathon
 
 ## Demo video
 
-[record + paste link]
+https://github.com/hanu-tayal/agentic-interfaces-hackathon/blob/main/docs/demo/bedtime-school-bridge-demo.mp4
+
+(Raw file: https://github.com/hanu-tayal/agentic-interfaces-hackathon/raw/main/docs/demo/bedtime-school-bridge-demo.mp4)
+
+50-second narrated screen recording. Driven by a Playwright script (.demo-record.js) that captures the app, with macOS `say` TTS narration generated from `docs/demo/narration.txt`.
 
 Suggested 2:30 script:
 1. (0:00–0:15) Open app on desktop sized for iPad. Big tap-mic CTA.

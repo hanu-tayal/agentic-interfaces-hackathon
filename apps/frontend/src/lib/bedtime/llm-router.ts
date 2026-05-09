@@ -109,7 +109,7 @@ async function tryAnthropicDirect(req: Parameters<typeof buildUserPrompt>[0]): P
   const result = await client.messages.create({
     model: "claude-sonnet-4-5",
     max_tokens: 1500,
-    temperature: 0.5,
+    temperature: 0.6,
     system: SYSTEM,
     messages: [{ role: "user", content: buildUserPrompt(req) }],
   });
@@ -131,7 +131,7 @@ async function tryOpenRouter(req: Parameters<typeof buildUserPrompt>[0]): Promis
     },
   });
   const result = await client.chat.completions.create({
-    model: "google/gemini-2.5-flash",
+    model: "anthropic/claude-sonnet-4.5",
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SYSTEM },
@@ -141,14 +141,17 @@ async function tryOpenRouter(req: Parameters<typeof buildUserPrompt>[0]): Promis
     max_tokens: 1500,
   });
   const text = result.choices[0]?.message?.content ?? "";
-  return { raw: tryParseJson(text), generatedBy: "gemini-2.5-flash (openrouter)", rawText: text };
+  return { raw: tryParseJson(text), generatedBy: "claude-sonnet-4.5 (openrouter)", rawText: text };
 }
 
+// Cascade: OpenRouter Claude Sonnet 4.5 (best quality, drains $5-10 OR balance)
+// → Vertex Gemini (drains $25k GCP credits) → AI Studio Gemini → Anthropic direct.
+// Anthropic direct goes last because the user's balance there is depleted.
 const PROVIDERS: Array<{ name: string; fn: (req: Parameters<typeof buildUserPrompt>[0]) => Promise<RouterResult> }> = [
-  { name: "gemini-ai-studio", fn: tryGeminiAiStudio },
+  { name: "openrouter-claude-4-5", fn: tryOpenRouter },
   { name: "vertex-gemini", fn: tryVertexGemini },
-  { name: "anthropic-direct", fn: tryAnthropicDirect },
-  { name: "openrouter", fn: tryOpenRouter },
+  { name: "gemini-ai-studio", fn: tryGeminiAiStudio },
+  { name: "anthropic-sonnet-4-5", fn: tryAnthropicDirect },
 ];
 
 export async function generateManifest(
