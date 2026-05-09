@@ -125,6 +125,62 @@ function StoryScene({ module: m, hero }: { module: GeneratedModule; hero?: boole
       badge={<><BookOpen className="h-3.5 w-3.5" /> Bedtime book</>}
     >
       <div className="relative min-h-[280px] md:min-h-[340px]">
+        {/* Ambient layered decorations — sit behind hero emoji (z-0) */}
+        {/* Drifting cloud */}
+        <motion.span
+          animate={{ x: [0, 20, 0] }}
+          transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 0 }}
+          className="pointer-events-none absolute left-3 top-6 z-0 text-3xl opacity-60"
+          aria-hidden
+        >
+          ☁️
+        </motion.span>
+        {/* Pulsing moon */}
+        <motion.span
+          animate={{ scale: [1, 1.08, 1], opacity: [0.55, 0.85, 0.55] }}
+          transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1.2 }}
+          className="pointer-events-none absolute right-4 top-4 z-0 text-2xl"
+          aria-hidden
+        >
+          🌙
+        </motion.span>
+        {/* Twinkling star 1 */}
+        <motion.span
+          animate={{ scale: [1, 1.4, 0.8, 1], opacity: [0.5, 1, 0.4, 0.5] }}
+          transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut", delay: 0.4 }}
+          className="pointer-events-none absolute left-[15%] top-[18%] z-0 text-lg"
+          aria-hidden
+        >
+          ⭐
+        </motion.span>
+        {/* Twinkling star 2 */}
+        <motion.span
+          animate={{ scale: [0.9, 1.35, 0.9], opacity: [0.4, 0.9, 0.4] }}
+          transition={{ repeat: Infinity, duration: 2.8, ease: "easeInOut", delay: 1.8 }}
+          className="pointer-events-none absolute right-[12%] top-[30%] z-0 text-base"
+          aria-hidden
+        >
+          ⭐
+        </motion.span>
+        {/* Twinkling star 3 */}
+        <motion.span
+          animate={{ scale: [1, 1.3, 1], opacity: [0.35, 0.75, 0.35] }}
+          transition={{ repeat: Infinity, duration: 4.1, ease: "easeInOut", delay: 0.9 }}
+          className="pointer-events-none absolute left-[8%] top-[45%] z-0 text-sm"
+          aria-hidden
+        >
+          ⭐
+        </motion.span>
+        {/* Alternate-rhythm sparkle */}
+        <motion.span
+          animate={{ scale: [1, 1.5, 0.9, 1], opacity: [0.6, 1, 0.5, 0.6], rotate: [0, 15, -10, 0] }}
+          transition={{ repeat: Infinity, duration: 3.7, ease: "easeInOut", delay: 2.5 }}
+          className="pointer-events-none absolute right-[18%] top-[12%] z-0 text-xl"
+          aria-hidden
+        >
+          ✨
+        </motion.span>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={page}
@@ -132,7 +188,7 @@ function StoryScene({ module: m, hero }: { module: GeneratedModule; hero?: boole
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.35 }}
-            className="relative flex flex-col items-center text-center"
+            className="relative z-10 flex flex-col items-center text-center"
           >
             {/* Big illustrated scene */}
             <motion.div

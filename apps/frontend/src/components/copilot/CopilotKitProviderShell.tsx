@@ -15,7 +15,12 @@
  * surfaces as a small CopilotKit-branded card. No registry needed here.
  */
 
-import { CopilotKitProvider } from "@copilotkit/react-core/v2";
+import dynamic from "next/dynamic";
+
+const CopilotKitProvider = dynamic(
+  () => import("@copilotkit/react-core/v2").then((mod) => mod.CopilotKitProvider),
+  { ssr: false },
+);
 
 export function CopilotKitProviderShell({
   children,
