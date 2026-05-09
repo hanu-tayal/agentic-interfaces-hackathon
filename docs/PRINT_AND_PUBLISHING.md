@@ -2,9 +2,9 @@
 
 ## Product Requirement
 
-Bedtime School Bridge should help the child watch less TV by turning generated bedtime learning into printable material.
+Bedtime School Bridge should help the child watch less passive TV by turning generated bedtime learning into parent-guided digital, printable, and audio material.
 
-The product should prioritize print-first outputs before video or screen experiences:
+The product should support print-first outputs without making print the only mode:
 
 - one-page bedtime story
 - coloring page
@@ -13,6 +13,8 @@ The product should prioritize print-first outputs before video or screen experie
 - sticker/checkoff routine card
 - weekend mini-book
 - monthly keepsake book
+
+It should also support a polished digital story/activity view for the hackathon demo and for parent-guided use.
 
 ## KDP Position
 
@@ -58,6 +60,13 @@ Build "Print Pack" instead of direct KDP publishing:
    - AI-generated disclosure note
    - parent review required before sharing or publishing
 
+Delivery path:
+
+- Use browser print and PDF export first.
+- Do not require a configured local printer for the demo.
+- If a home printer is available, let the OS print dialog handle the printer connection.
+- Keep print-shop fulfillment as a future parent-approved commerce flow.
+
 ## Future KDP Workflow
 
 Future flow:
@@ -80,9 +89,8 @@ Automation boundary:
 
 ## Product Framing
 
-The screen is the creation surface for the parent. The child-facing artifact is paper.
+The screen is the creation surface for the parent and the demo surface for the hackathon. The child-facing artifact can be digital, audio, or paper, with paper and audio available when the goal is less screen time.
 
 Positioning:
 
-> Turn daycare emails and favorite videos into printable bedtime stories, coloring pages, and mini-books, so the child gets less screen time and more personalized reading.
-
+> Turn daycare emails and favorite videos into digital, printable, and audio bedtime learning, so the child gets more personalized reading and less passive video.

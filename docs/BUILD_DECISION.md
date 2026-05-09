@@ -48,7 +48,7 @@ Keep model use behind the starter kit's model-switching seam so the team can fal
 Use a mixed strategy:
 
 - Controlled components for sensitive input/output/action rails: Gmail import, source evidence, privacy notices, print export, voice playback, publishing-readiness controls, toy recommendations, and purchase approvals.
-- Declarative/A2UI-style generated layouts for flexible bedtime modules, school-theme cards, story cards, food prompts, movement prompts, and parent scripts.
+- Declarative/A2UI-style generated layouts for flexible bedtime modules, digital story cards, school-theme cards, food prompts, movement prompts, print views, voice controls, and parent scripts.
 - MCP Apps/open-ended UI only as a bonus surface if the core app is stable.
 
 This gives a reliable demo while still proving that the UI is generated at runtime.
@@ -109,6 +109,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - tonight's bridge overview
    - school-theme cards
    - bedtime story
+   - digital story/activity view
    - food-learning card
    - movement prompt
    - emotion/body-language prompt
@@ -124,7 +125,8 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - curriculum selector
    - home-interest selector
    - tone and duration controls
-   - print controls
+   - print controls with browser/OS print handoff
+   - digital/print/audio mode switcher
    - voice controls
    - toy budget/category controls
    - source evidence summary
@@ -135,6 +137,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
    - switch to 2-minute version
    - make it calmer or sillier
    - generate a printable page or mini-book
+   - show the polished digital bedtime activity view
    - play a calm generated narration
    - approve a mock toy/book purchase
    - show evidence chips and privacy posture
@@ -148,6 +151,7 @@ Replace the starter's sample domain with Bedtime School Bridge:
 - Do not automate publishing of private child/daycare content.
 - Do not move real money in the hackathon demo.
 - Do not clone voices or imitate YouTube creators.
+- Do not require a configured printer for the MVP.
 - Do not introduce Gas City/gstack as mandatory dependencies unless they directly speed the team today.
 
 ## Build Plan

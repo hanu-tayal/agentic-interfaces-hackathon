@@ -16,6 +16,8 @@ Home media context: [docs/HOME_MEDIA_CONTEXT.md](docs/HOME_MEDIA_CONTEXT.md)
 
 Print and publishing strategy: [docs/PRINT_AND_PUBLISHING.md](docs/PRINT_AND_PUBLISHING.md)
 
+Print delivery requirement: [docs/PRINT_DELIVERY_REQUIREMENT.md](docs/PRINT_DELIVERY_REQUIREMENT.md)
+
 Toy commerce requirement: [docs/TOY_COMMERCE_REQUIREMENT.md](docs/TOY_COMMERCE_REQUIREMENT.md)
 
 Voice output requirement: [docs/VOICE_OUTPUT_REQUIREMENT.md](docs/VOICE_OUTPUT_REQUIREMENT.md)

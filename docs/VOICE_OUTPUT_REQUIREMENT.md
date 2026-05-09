@@ -17,9 +17,9 @@ The voice feature should support:
 
 The child already responds to spoken/sung media from kids videos. Voice can preserve the engaging part of those videos while removing the screen.
 
-The product goal is not "more YouTube." The product goal is:
+The product goal is not "more YouTube" or "no screens ever." The product goal is:
 
-> Use voice as a bridge away from video and toward print, reading, and parent interaction.
+> Use digital, voice, and print as parent-guided bridges away from passive video and toward reading, play, and interaction.
 
 ## Generated UI Modules
 
@@ -78,4 +78,3 @@ Future flow:
 3. App generates audio plus synchronized text.
 4. Parent can print the story and play the companion audio.
 5. App stores only the generated story metadata and transcript unless the parent saves audio.
-

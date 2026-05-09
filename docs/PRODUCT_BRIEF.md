@@ -6,7 +6,7 @@ Bedtime School Bridge
 
 ## One-Sentence Pitch
 
-Bedtime School Bridge turns daycare emails and home interests into printable bedtime stories, activities, and parent scripts, helping parents reinforce what their child learned, ate, practiced, and experienced without adding more screen time.
+Bedtime School Bridge turns daycare emails and home interests into digital, printable, and audio bedtime learning experiences, helping parents reinforce what their child learned, ate, practiced, and experienced without defaulting to more passive video.
 
 ## Core Problem
 
@@ -14,14 +14,14 @@ A child's daycare experience is captured in fragmented daily reports, curriculum
 
 A normal chatbot can summarize the school day, but it cannot give the parent a purpose-built bedtime teaching surface for that specific day.
 
-Bedtime School Bridge should generate the nightly interface from the day's school context, then turn the best output into print-ready pages for the child.
+Bedtime School Bridge should generate the nightly interface from the day's school context, then let the parent choose the best output mode: interactive screen, print-ready pages, or calm audio.
 
 ## Hackathon Angle
 
 This fits the "No Designer, No Problem", "Kill the Dashboard", and "The Copilot That Ships" tracks:
 
 - No fixed dashboard: the agent generates tonight's teaching surface from daycare context.
-- No chat-only flow: the user receives story cards, prompts, food cards, mini lessons, print controls, voice controls, toy recommendations, tone controls, and source evidence.
+- No chat-only flow: the user receives interactive story cards, prompts, food cards, mini lessons, print controls, voice controls, toy recommendations, tone controls, and source evidence.
 - Working-code demo: use sanitized daycare-like records derived from real email patterns.
 
 ## Personal Context Seed
@@ -50,6 +50,7 @@ The agent can generate different UI modules depending on the daycare report:
 - Emotion prompt: feelings vocabulary if the day involved social-emotional learning.
 - Mini lesson: 2-3 concepts tied to the curriculum theme.
 - Print pack: printable story page, coloring/activity page, and tomorrow card.
+- Digital story mode: tappable/read-aloud story cards for the demo and for parent-guided use.
 - Voice companion: calm narration, read-aloud support, or call-and-response prompts.
 - Home interest bridge: connects school themes to known interests such as garbage trucks, recycling, sports, vehicles, and songs.
 - Toy match: age-appropriate toy/book/activity recommendations tied to school themes and home interests.
@@ -108,14 +109,18 @@ Use cases:
 Use cases:
 
 - Generate print-ready pages so the child gets paper instead of more video.
+- Show an interactive digital version for demo and parent-guided bedtime.
 - Export a PDF print pack for tonight.
+- Print to a home printer through the browser/OS print dialog.
 - Compile favorite generated stories into a monthly keepsake book.
 - Prepare, but do not automatically publish, a Kindle Direct Publishing-ready package.
 
 Hackathon MVP:
 
 - Generate a local printable PDF or browser print view.
+- Render a polished digital story/activity view.
 - Show print controls in the generated UI.
+- Use browser print for home-printer handoff; do not require direct printer setup.
 - Include an AI-generated content/privacy disclosure panel.
 - Keep KDP as a future export target, not a live publishing integration.
 
@@ -167,7 +172,7 @@ Build a local web app that demonstrates:
 3. Agent generates a UI schema for tonight's bedtime teaching plan.
 4. App renders interactive modules: story, prompts, food card, mini lesson, movement, print pack, voice companion, toy match, parent script, evidence.
 5. User changes tone/duration and sees the surface regenerate.
-6. User prints a one-page or mini-book version.
+6. User chooses digital, print, or audio output.
 
 ## Suggested Demo Flow
 
@@ -177,6 +182,7 @@ Build a local web app that demonstrates:
    - school themes
    - 7-minute parent script
    - short story
+   - tappable digital story/activity view
    - food conversation card
    - movement/emotion prompts
    - print pack preview
@@ -187,9 +193,10 @@ Build a local web app that demonstrates:
 4. Click "2-minute version".
 5. Click "make it sillier".
 6. Click "make printable".
-7. Click "listen calmly".
-8. Click "find a hands-on toy".
-9. Approve a mock purchase and show that the UI generates a receipt/audit trail without real spending.
+7. Switch between digital, print, and listen modes.
+8. Click "listen calmly".
+9. Click "find a hands-on toy".
+10. Approve a mock purchase and show that the UI generates a receipt/audit trail without real spending.
 
 ## Why This Is Generative UI
 
@@ -203,6 +210,7 @@ The core product claim is:
 
 - The demo visibly changes the UI based on daycare context.
 - At least one generated bedtime story is shown.
+- The digital demo view is polished enough for judging.
 - At least one food-learning module is shown.
 - At least one parent script/talk prompt module is shown.
 - A printable page or mini-book preview is shown.
@@ -227,7 +235,7 @@ The core product claim is:
 ## Submission Metadata Draft
 
 - Project name: Bedtime School Bridge
-- Pitch: Bedtime School Bridge turns daycare emails and home interests into printable bedtime stories, activities, and parent scripts, helping parents reinforce school learning without adding more screen time.
+- Pitch: Bedtime School Bridge turns daycare emails and home interests into digital, printable, and audio bedtime learning experiences, helping parents reinforce school learning without defaulting to passive video.
 - Protocols used: CopilotKit/AG-UI for agent-to-frontend interaction, A2UI-style declarative UI schema for generated bedtime modules, optional MCP/Gmail rail for email context, AP2/x402-inspired mock commerce rail for parent-approved purchases.
 - Team roles: TBD.
 
