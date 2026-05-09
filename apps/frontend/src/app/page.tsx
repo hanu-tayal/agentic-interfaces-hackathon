@@ -1,22 +1,20 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import {
-  BookOpen,
-  CheckCircle2,
-  CircleDollarSign,
-  FileText,
-  Headphones,
-  Leaf,
-  PlayCircle,
-  Printer,
-  RefreshCcw,
-  ShieldCheck,
-  Sparkles,
-  Truck,
-  WandSparkles,
+  Mic,
+  MicOff,
   Volume2,
+  Printer,
+  CheckCircle2,
+  Sparkles,
+  Wand2,
+  Truck,
+  PlayCircle,
+  Loader2,
+  ChevronUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createMockPurchaseApproval,
   toyCandidates,
@@ -26,7 +24,8 @@ import {
   type GeneratedInterface,
   type GeneratedModule,
 } from "@/lib/bedtime/generative-ui";
-import { createVoicePlan } from "@/lib/bedtime/voice";
+import { ModuleRenderer } from "@/components/bedtime/ModuleRenderer";
+import { VoiceInput } from "@/lib/bedtime/voice-input";
 
 type Tone = "balanced" | "calmer" | "sillier";
 type Duration = "7-minute" | "2-minute";
@@ -34,77 +33,123 @@ type Mode = "digital" | "print" | "voice" | "youtube" | "toy";
 
 const sourceContext = {
   child: "Toddler",
-  reportDate: "Today",
   weeklyTheme: "Move It Week 2",
   nextTheme: "Five Senses Week 1",
   characterTheme: "We Are Responsible",
-  activities: [
-    "hopping on lily pads",
-    "sports heroes",
-    "body language",
-    "twist, twirl, and spin",
-  ],
+  activities: ["hopping on lily pads", "sports heroes", "body language", "twist, twirl, and spin"],
   meals: ["brown rice", "green beans", "watermelon", "zucchini bread"],
-  homeInterests: [
-    "garbage trucks",
-    "recycling trucks",
-    "basketball",
-    "movement songs",
-  ],
+  homeInterests: ["garbage trucks", "recycling trucks", "basketball", "movement songs"],
 };
 
-const videoCards = [
-  {
-    title: "Red Light, Green Light movement song",
-    channel: "Seeded preschool catalog",
-    reason: "Practices stop/go body control from Move It Week 2.",
-    prompt: "Ask: What does your body do when the light turns red?",
-  },
-  {
-    title: "Recycling truck cleanup story",
-    channel: "Seeded vehicle-learning catalog",
-    reason: "Connects garbage truck interest to responsibility and cleanup.",
-    prompt: "Ask: What can our truck put in the recycling bin?",
-  },
-  {
-    title: "Basketball bounce and count",
-    channel: "Seeded movement catalog",
-    reason: "Turns sports heroes into counting, rhythm, and gross motor play.",
-    prompt: "Ask: Can you count three quiet bounces with your hands?",
-  },
+const SAMPLE_PROMPTS = [
+  "Move It Week 2, garbage trucks, basketball, calmer tonight",
+  "Rough drop-off this morning, dad gone for two days",
+  "Two minutes, super silly, recycling truck story",
 ];
 
-function ModuleIcon({ kind }: { kind: GeneratedModule["kind"] }) {
-  const className = "h-4 w-4";
-  if (kind === "story") return <BookOpen className={className} />;
-  if (kind === "prompt") return <Sparkles className={className} />;
-  if (kind === "food") return <Leaf className={className} />;
-  if (kind === "movement") return <RefreshCcw className={className} />;
-  if (kind === "print") return <Printer className={className} />;
-  if (kind === "voice") return <Headphones className={className} />;
-  if (kind === "youtube") return <PlayCircle className={className} />;
-  return <CircleDollarSign className={className} />;
-}
+// Tone-driven canvas backgrounds
+const TONE_BG: Record<Tone, string> = {
+  balanced: "bg-gradient-to-br from-[#fdfbf4] via-[#f8f4e6] to-[#f0ead2]",
+  calmer: "bg-gradient-to-br from-[#1a2540] via-[#2a3252] to-[#3d4470]",
+  sillier: "bg-gradient-to-br from-[#fff4d6] via-[#ffe5a3] to-[#ffcc77]",
+};
+const TONE_TEXT: Record<Tone, string> = {
+  balanced: "text-[#1c211c]",
+  calmer: "text-[#e6e9f5]",
+  sillier: "text-[#3d2a08]",
+};
+const TONE_TAB_ACTIVE: Record<Tone, string> = {
+  balanced: "bg-[#233325] text-white",
+  calmer: "bg-white/90 text-[#1a2540]",
+  sillier: "bg-[#3d2a08] text-white",
+};
+const TONE_TAB_BG: Record<Tone, string> = {
+  balanced: "bg-white",
+  calmer: "bg-white/10 backdrop-blur",
+  sillier: "bg-white/70",
+};
+const TONE_TAB_INACTIVE: Record<Tone, string> = {
+  balanced: "text-[#4d5748] hover:bg-[#f4f2ea]",
+  calmer: "text-[#cdd5e6] hover:bg-white/5",
+  sillier: "text-[#7a5a18] hover:bg-white/40",
+};
 
 export default function HomePage() {
   const [tone, setTone] = useState<Tone>("balanced");
   const [duration, setDuration] = useState<Duration>("7-minute");
   const [mode, setMode] = useState<Mode>("digital");
+  const [generated, setGenerated] = useState<GeneratedInterface>(() =>
+    createFallbackInterface({ tone: "balanced", duration: "7-minute" }),
+  );
+  const [tried, setTried] = useState<string[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamedModuleIds, setStreamedModuleIds] = useState<string[]>([]);
+  const [showSamples, setShowSamples] = useState(true);
+
+  // Voice
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [textInput, setTextInput] = useState("");
+  const voiceRef = useRef<VoiceInput | null>(null);
   const [approvedVideo, setApprovedVideo] = useState(false);
   const [approvedToy, setApprovedToy] = useState(false);
-  const [buildCount, setBuildCount] = useState(1);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedInterface, setGeneratedInterface] =
-    useState<GeneratedInterface>(() =>
-      createFallbackInterface({ tone: "balanced", duration: "7-minute" }),
-    );
 
-  const modules = generatedInterface.modules;
-  const story = modules.find((module) => module.id === "story")!;
+  useEffect(() => {
+    setVoiceSupported(VoiceInput.isSupported());
+    voiceRef.current = new VoiceInput();
+    const v = voiceRef.current;
+    const off1 = v.onTranscript((t) => setTranscript(t));
+    const off2 = v.onEnd((final) => {
+      setIsListening(false);
+      if (final && final.length > 4) void buildBridge({ freeform: final });
+    });
+    return () => {
+      off1();
+      off2();
+      v.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  async function buildBridge(nextTone = tone, nextDuration = duration) {
+  // Initialize fallback as streamed so empty state shows real UI
+  useEffect(() => {
+    setStreamedModuleIds(generated.modules.map((m) => m.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function startListening() {
+    if (!voiceRef.current) return;
+    setTranscript("");
+    setIsListening(true);
+    setShowSamples(false);
+    voiceRef.current.start();
+  }
+  function stopListening() {
+    if (!voiceRef.current) return;
+    voiceRef.current.stop();
+  }
+
+  async function buildBridge(opts?: { tone?: Tone; duration?: Duration; freeform?: string }) {
+    const nextTone = opts?.tone ?? tone;
+    const nextDuration = opts?.duration ?? duration;
+    const nextFreeform = opts?.freeform ?? textInput ?? undefined;
     setIsGenerating(true);
-    setBuildCount((count) => count + 1);
+    setMode("digital");
+    setShowSamples(false);
+
+    // Optimistic local fallback so the iPad fills instantly
+    const fallback = createFallbackInterface({ tone: nextTone, duration: nextDuration, freeform: nextFreeform });
+    setGenerated(fallback);
+    setStreamedModuleIds([]);
+    const fbIds = fallback.modules.map((m) => m.id);
+    (async () => {
+      for (let i = 0; i < fbIds.length; i++) {
+        await new Promise((r) => setTimeout(r, 90));
+        setStreamedModuleIds((prev) => (prev.includes(fbIds[i]) ? prev : [...prev, fbIds[i]]));
+      }
+    })();
+
     try {
       const response = await fetch("/api/bedtime/generate", {
         method: "POST",
@@ -112,480 +157,494 @@ export default function HomePage() {
         body: JSON.stringify({
           tone: nextTone,
           duration: nextDuration,
+          freeform: nextFreeform,
           context: sourceContext,
         }),
       });
-      const manifest = (await response.json()) as GeneratedInterface;
-      setGeneratedInterface(manifest);
-      setMode("digital");
+      const manifest = (await response.json()) as GeneratedInterface & { _tried?: string[] };
+      setGenerated(manifest);
+      setTried(manifest._tried ?? []);
+      const aiIds = manifest.modules.map((m) => m.id);
+      setStreamedModuleIds([]);
+      for (let i = 0; i < aiIds.length; i++) {
+        await new Promise((r) => setTimeout(r, 130));
+        setStreamedModuleIds((prev) => [...prev, aiIds[i]]);
+      }
     } catch {
-      setGeneratedInterface(
-        createFallbackInterface({ tone: nextTone, duration: nextDuration }),
-      );
+      // keep fallback
     } finally {
       setIsGenerating(false);
+      setTextInput("");
     }
   }
 
-  function speakStory() {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(story.body);
-    utterance.rate = tone === "calmer" ? 0.78 : 0.92;
-    utterance.pitch = tone === "sillier" ? 1.15 : 0.95;
-    window.speechSynthesis.speak(utterance);
-  }
+  const visibleModules = useMemo(() => {
+    return generated.modules.filter((m) => streamedModuleIds.includes(m.id));
+  }, [generated.modules, streamedModuleIds]);
 
-  function printPack() {
-    if (typeof window !== "undefined") window.print();
-  }
+  const screenModules = visibleModules.filter(
+    (m) => !["voice", "youtube", "toy", "print"].includes(m.kind),
+  );
+  const story = visibleModules.find((m) => m.kind === "story" || m.kind === "lullaby");
 
   return (
-    <main className="min-h-screen bg-[#f4f2ea] text-[#1c211c]">
-      <section className="border-b border-[#d7d2c4] bg-[#fdfbf4]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-6 md:px-8">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#5f6f52]">
-                Agentic Interfaces Hackathon Demo
-              </p>
-              <h1 className="mt-2 text-4xl font-semibold tracking-normal text-[#182018] md:text-6xl">
+    <main className="relative min-h-screen overflow-hidden bg-[#0a0d0a] text-white">
+      {/* iPad canvas takes 100% on mobile, 92% on desktop */}
+      <div className={`flex min-h-screen w-full flex-col transition-colors duration-700 ${TONE_BG[tone]} ${TONE_TEXT[tone]}`}>
+        {/* Top bar — minimal */}
+        <header className={`flex shrink-0 items-center justify-between gap-3 border-b border-black/5 px-5 py-3 md:px-8 md:py-4 ${tone === "calmer" ? "bg-black/20 backdrop-blur" : "bg-white/30 backdrop-blur"}`}>
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-[#5f6f52] to-[#3d4a32] text-white">
+              <Wand2 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${tone === "calmer" ? "text-[#b9d4a8]" : "text-[#5f6f52]"}`}>
                 Bedtime School Bridge
-              </h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-[#4d5748]">
-                A generated bedtime interface from daycare context, home
-                interests, and parent-approved learning rails.
               </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => void buildBridge()}
-                className="inline-flex items-center gap-2 rounded-md bg-[#233325] px-3 py-2 text-sm font-semibold text-white"
-              >
-                <WandSparkles className="h-4 w-4" />
-                {isGenerating ? "Generating..." : "Build bridge"}
-              </button>
-              <button
-                onClick={() => {
-                  setDuration("2-minute");
-                  void buildBridge(tone, "2-minute");
-                }}
-                className="inline-flex items-center gap-2 rounded-md border border-[#c6beac] bg-white px-3 py-2 text-sm font-semibold"
-              >
-                <Sparkles className="h-4 w-4" />
-                2-minute
-              </button>
-              <button
-                onClick={() => {
-                  setTone("calmer");
-                  void buildBridge("calmer", duration);
-                }}
-                className="inline-flex items-center gap-2 rounded-md border border-[#c6beac] bg-white px-3 py-2 text-sm font-semibold"
-              >
-                <Headphones className="h-4 w-4" />
-                Make calmer
-              </button>
-              <button
-                onClick={() => {
-                  setTone("sillier");
-                  void buildBridge("sillier", duration);
-                }}
-                className="inline-flex items-center gap-2 rounded-md border border-[#c6beac] bg-white px-3 py-2 text-sm font-semibold"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Make sillier
-              </button>
-              <button
-                onClick={() => {
-                  setTone("balanced");
-                  setDuration("7-minute");
-                  void buildBridge("balanced", "7-minute");
-                }}
-                className="inline-flex items-center gap-2 rounded-md border border-[#c6beac] bg-white px-3 py-2 text-sm font-semibold"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Reset
-              </button>
+              <p className="text-xs leading-4 opacity-80">Speak. Watch tonight&apos;s iPad UI assemble itself.</p>
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(["balanced", "calmer", "sillier"] as Tone[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => {
+                  setTone(t);
+                  void buildBridge({ tone: t });
+                }}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${tone === t ? "bg-black/80 text-white" : tone === "calmer" ? "border border-white/20 text-white/70" : "border border-black/10 text-current/70 hover:bg-white/30"}`}
+              >
+                {t}
+              </button>
+            ))}
+            <span className={`mx-1 hidden h-5 w-px md:block ${tone === "calmer" ? "bg-white/20" : "bg-black/10"}`} />
+            {(["7-minute", "2-minute"] as Duration[]).map((d) => (
+              <button
+                key={d}
+                onClick={() => {
+                  setDuration(d);
+                  void buildBridge({ duration: d });
+                }}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${duration === d ? "bg-black/80 text-white" : tone === "calmer" ? "border border-white/20 text-white/70" : "border border-black/10 text-current/70 hover:bg-white/30"}`}
+              >
+                {d.replace("-", " ")}
+              </button>
+            ))}
+          </div>
+        </header>
 
-          <div className="grid gap-3 md:grid-cols-5">
-            <ContextTile label="Theme" value={sourceContext.weeklyTheme} />
-            <ContextTile label="Next" value={sourceContext.nextTheme} />
-            <ContextTile label="Character" value={sourceContext.characterTheme} />
-            <ContextTile label="Meals" value={sourceContext.meals.join(", ")} />
-            <ContextTile
-              label="Home interests"
-              value={sourceContext.homeInterests.join(", ")}
-            />
+        {/* Mode tab bar */}
+        <div className={`shrink-0 border-b border-black/5 px-5 py-2 md:px-8 ${tone === "calmer" ? "bg-black/10" : "bg-white/30 backdrop-blur"}`}>
+          <div className={`flex gap-1 rounded-2xl p-1 ${TONE_TAB_BG[tone]}`}>
+            {([
+              ["digital", "Tonight"],
+              ["voice", "Listen"],
+              ["print", "Print"],
+              ["youtube", "Videos"],
+              ["toy", "Toy"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setMode(value)}
+                className={`flex-1 rounded-xl px-3 py-2 text-sm font-bold transition ${mode === value ? TONE_TAB_ACTIVE[tone] + " shadow-sm" : TONE_TAB_INACTIVE[tone]}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-      </section>
 
-      <section className="mx-auto grid max-w-7xl gap-5 px-5 py-5 md:grid-cols-[280px_1fr] md:px-8">
-        <aside className="space-y-4">
-          <div className="rounded-lg border border-[#d7d2c4] bg-white p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#5f6f52]">
-              <ShieldCheck className="h-4 w-4" />
-              Source Safety
-            </div>
-            <p className="mt-2 text-sm leading-6 text-[#4d5748]">
-              Demo uses sanitized structured fields. No raw Gmail, YouTube
-              history, child photos, or private links are stored.
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-[#d7d2c4] bg-white p-4">
-            <p className="text-sm font-semibold text-[#5f6f52]">
-              Agent-generated modules
-            </p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#7a715f]">
-              build #{buildCount}
-            </p>
-            <p className="mt-2 rounded-md bg-[#edf4ff] px-3 py-2 text-xs font-semibold leading-5 text-[#20446a]">
-              Generated UI manifest: {generatedInterface.generatedBy}. Layout:{" "}
-              {generatedInterface.layout.join(" -> ")}
-            </p>
-            <div className="mt-3 space-y-2">
-              {modules.map((module) => (
-                <button
-                  key={module.id}
-                  onClick={() => {
-                    if (module.kind === "print") setMode("print");
-                    else if (module.kind === "voice") setMode("voice");
-                    else if (module.kind === "youtube") setMode("youtube");
-                    else if (module.kind === "toy") setMode("toy");
-                    else setMode("digital");
-                  }}
-                  className="flex w-full items-center gap-2 rounded-md border border-[#e2ddcf] px-3 py-2 text-left text-sm hover:bg-[#f4f2ea]"
-                >
-                  <ModuleIcon kind={module.kind} />
-                  <span className="flex-1">{module.title}</span>
-                  <code className="rounded bg-[#f4f2ea] px-1.5 py-0.5 text-[10px] font-semibold text-[#5a6257]">
-                    {module.renderer}
-                  </code>
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        <div className="space-y-5">
-          <div className="rounded-lg border border-[#d7d2c4] bg-white p-2">
-            <div className="grid grid-cols-5 gap-1">
-              {[
-                ["digital", "Digital"],
-                ["print", "Print"],
-                ["voice", "Voice"],
-                ["youtube", "YouTube"],
-                ["toy", "Toy"],
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  onClick={() => setMode(value as Mode)}
-                  className={`rounded-md px-2 py-2 text-sm font-semibold ${
-                    mode === value
-                      ? "bg-[#233325] text-white"
-                      : "text-[#4d5748] hover:bg-[#f4f2ea]"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {mode === "digital" && <DigitalView modules={modules} />}
-          {mode === "print" && <PrintView modules={modules} onPrint={printPack} />}
+        {/* Main canvas */}
+        <div className="relative flex-1 overflow-y-auto px-5 pb-32 pt-5 md:px-12 md:pb-32 md:pt-8">
+          {mode === "digital" && (
+            <DigitalCanvas
+              modules={screenModules}
+              isGenerating={isGenerating}
+              empty={visibleModules.length === 0}
+            />
+          )}
           {mode === "voice" && (
-            <VoiceView story={story.body} onSpeak={speakStory} tone={tone} />
-          )}
-          {mode === "youtube" && (
-            <YouTubeView
-              approved={approvedVideo}
-              onApprove={() => setApprovedVideo(true)}
+            <VoiceMode
+              story={story?.body ?? "Tap the mic and speak. The bedtime UI will assemble itself."}
+              storyTitle={story?.title}
+              tone={tone}
             />
           )}
-          {mode === "toy" && (
-            <ToyView approved={approvedToy} onApprove={() => setApprovedToy(true)} />
-          )}
+          {mode === "print" && <PrintMode modules={visibleModules} onPrint={() => window.print()} />}
+          {mode === "youtube" && <YouTubeMode approved={approvedVideo} onApprove={() => setApprovedVideo(true)} />}
+          {mode === "toy" && <ToyMode approved={approvedToy} onApprove={() => setApprovedToy(true)} />}
         </div>
-      </section>
+
+        {/* Floating voice dock */}
+        <FloatingVoiceDock
+          isListening={isListening}
+          isGenerating={isGenerating}
+          transcript={transcript}
+          voiceSupported={voiceSupported}
+          onStart={startListening}
+          onStop={stopListening}
+          textInput={textInput}
+          onTextInput={setTextInput}
+          onSubmitText={() => void buildBridge({ freeform: textInput })}
+          showSamples={showSamples}
+          onToggleSamples={() => setShowSamples((s) => !s)}
+          generated={generated}
+          tried={tried}
+          tone={tone}
+        />
+      </div>
+
+      <style jsx global>{`
+        @media print {
+          body { background: white !important; color: black !important; }
+          header, .floating-dock { display: none !important; }
+        }
+      `}</style>
     </main>
   );
 }
 
-function ContextTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-[#d7d2c4] bg-white p-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7a715f]">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-semibold leading-5">{value}</p>
-    </div>
-  );
-}
+// ---------- FLOATING DOCK ----------
 
-function DigitalView({ modules }: { modules: GeneratedModule[] }) {
+function FloatingVoiceDock({
+  isListening,
+  isGenerating,
+  transcript,
+  voiceSupported,
+  onStart,
+  onStop,
+  textInput,
+  onTextInput,
+  onSubmitText,
+  showSamples,
+  onToggleSamples,
+  generated,
+  tried,
+  tone,
+}: {
+  isListening: boolean;
+  isGenerating: boolean;
+  transcript: string;
+  voiceSupported: boolean;
+  onStart: () => void;
+  onStop: () => void;
+  textInput: string;
+  onTextInput: (s: string) => void;
+  onSubmitText: () => void;
+  showSamples: boolean;
+  onToggleSamples: () => void;
+  generated: GeneratedInterface;
+  tried: string[];
+  tone: Tone;
+}) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      {modules
-        .filter((module) =>
-          ["story", "prompt", "food", "movement"].includes(module.kind),
-        )
-        .map((module) => (
-          <GeneratedCard key={module.id} module={module} />
-        ))}
-    </div>
-  );
-}
-
-function GeneratedCard({ module }: { module: GeneratedModule }) {
-  return (
-    <article className="rounded-lg border border-[#d7d2c4] bg-white p-5">
-      <div className="flex items-center gap-2 text-sm font-semibold text-[#5f6f52]">
-        <ModuleIcon kind={module.kind} />
-        {module.title}
-      </div>
-      <code className="mt-3 inline-flex rounded bg-[#edf4ff] px-2 py-1 text-xs font-semibold text-[#20446a]">
-        renderer: {module.renderer}
-      </code>
-      <p className="mt-3 text-base leading-7 text-[#273025]">{module.body}</p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {module.evidence.map((item) => (
-          <span
-            key={item}
-            className="rounded-md bg-[#e9f0dd] px-2 py-1 text-xs font-semibold text-[#45543d]"
+    <div className="floating-dock pointer-events-none fixed inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-5 pb-5 md:pb-7">
+      <AnimatePresence>
+        {showSamples && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="pointer-events-auto flex max-w-3xl flex-wrap justify-center gap-2"
           >
-            {item}
-          </span>
-        ))}
+            {SAMPLE_PROMPTS.map((p) => (
+              <button
+                key={p}
+                onClick={() => {
+                  onTextInput(p);
+                  onSubmitText();
+                }}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur ${tone === "calmer" ? "bg-white/15 text-white hover:bg-white/25" : "bg-black/70 text-white hover:bg-black/90"}`}
+              >
+                &ldquo;{p}&rdquo;
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-black/80 px-3 py-2.5 shadow-2xl backdrop-blur">
+        <button
+          onClick={isListening ? onStop : onStart}
+          disabled={!voiceSupported || isGenerating}
+          className={`relative flex h-14 w-14 items-center justify-center rounded-full transition disabled:opacity-50 ${
+            isListening
+              ? "bg-gradient-to-br from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.6)]"
+              : "bg-gradient-to-br from-[#5f6f52] to-[#3d4a32] hover:from-[#6d7e5d]"
+          }`}
+        >
+          {isListening ? (
+            <>
+              <motion.span
+                animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
+                transition={{ repeat: Infinity, duration: 1.6 }}
+                className="absolute inset-0 rounded-full bg-rose-400/40"
+              />
+              <MicOff className="relative h-7 w-7 text-white" />
+            </>
+          ) : isGenerating ? (
+            <Loader2 className="h-7 w-7 animate-spin text-white" />
+          ) : (
+            <Mic className="h-7 w-7 text-white" />
+          )}
+        </button>
+        <div className="flex min-w-0 flex-col">
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#b9d4a8]">
+            {isListening ? "Listening…" : isGenerating ? `Composing · ${generated.generatedBy.slice(0, 28)}` : voiceSupported ? "Tap to speak tonight's UI" : "Voice unsupported — type below"}
+          </p>
+          {(isListening && transcript) ? (
+            <p className="max-w-[280px] truncate text-xs text-white/80 md:max-w-[420px]">&ldquo;{transcript}&rdquo;</p>
+          ) : (
+            <p className="text-xs text-white/60">{generated.modules.length} modules · {generated.layoutMode}</p>
+          )}
+        </div>
+        {!voiceSupported && (
+          <input
+            value={textInput}
+            onChange={(e) => onTextInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && textInput.trim()) onSubmitText(); }}
+            placeholder="Tonight in one sentence…"
+            className="hidden w-72 rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder:text-white/40 focus:bg-white/15 focus:outline-none md:block"
+          />
+        )}
+        <button
+          onClick={onToggleSamples}
+          title="Show sample prompts"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+        >
+          <ChevronUp className={`h-5 w-5 transition ${showSamples ? "rotate-180" : ""}`} />
+        </button>
       </div>
-    </article>
+
+      {tried.length > 0 && (
+        <div className="pointer-events-auto rounded-full bg-black/40 px-3 py-1 text-[10px] font-mono text-[#b9d4a8] backdrop-blur">
+          cascade: {tried[tried.length - 1]}
+        </div>
+      )}
+    </div>
   );
 }
 
-function PrintView({
+// ---------- DIGITAL CANVAS ----------
+
+function DigitalCanvas({
   modules,
-  onPrint,
+  isGenerating,
+  empty,
 }: {
   modules: GeneratedModule[];
-  onPrint: () => void;
+  isGenerating: boolean;
+  empty: boolean;
 }) {
-  const story = modules.find((module) => module.id === "story")!;
-  const prompts = modules.find((module) => module.id === "prompts")!;
-  return (
-    <section className="rounded-lg border border-[#d7d2c4] bg-white p-5">
-      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#5f6f52]">
-            Print Pack Preview
-          </p>
-          <h2 className="mt-1 text-2xl font-semibold">Tonight's pages</h2>
-        </div>
-        <button
-          onClick={onPrint}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#233325] px-4 py-2 text-sm font-semibold text-white"
-        >
-          <Printer className="h-4 w-4" />
-          Print tonight
-        </button>
-      </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-2 print:grid-cols-1">
-        <div className="min-h-[360px] rounded-lg border border-[#d7d2c4] bg-[#fdfbf4] p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7a715f]">
-            Child page
-          </p>
-          <h3 className="mt-3 text-3xl font-semibold leading-tight">
-            {story.title}
-          </h3>
-          <p className="mt-5 text-xl leading-9">{story.body}</p>
-        </div>
-        <div className="min-h-[360px] rounded-lg border border-[#d7d2c4] bg-[#fdfbf4] p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7a715f]">
-            Parent page
-          </p>
-          <h3 className="mt-3 text-3xl font-semibold leading-tight">
-            Read-aloud guide
-          </h3>
-          <p className="mt-5 text-xl leading-9">{prompts.body}</p>
-          <p className="mt-6 text-lg leading-8">
-            Morning follow-up: count three wheels on the way to school.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function VoiceView({
-  story,
-  tone,
-  onSpeak,
-}: {
-  story: string;
-  tone: Tone;
-  onSpeak: () => void;
-}) {
-  const voicePlan = createVoicePlan(tone);
-
-  return (
-    <section className="rounded-lg border border-[#d7d2c4] bg-white p-5">
-      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#5f6f52]">
-            Voice Companion
-          </p>
-          <h2 className="mt-1 text-2xl font-semibold">Calm read-aloud mode</h2>
-        </div>
-        <button
-          onClick={onSpeak}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#233325] px-4 py-2 text-sm font-semibold text-white"
-        >
-          <Volume2 className="h-4 w-4" />
-          Listen
-        </button>
-      </div>
-      <div className="mt-5 rounded-lg bg-[#f4f2ea] p-5">
-        <p className="text-sm font-semibold text-[#5f6f52]">
-          Transcript ({voicePlan.pace})
+  if (empty && !isGenerating) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <Wand2 className="h-16 w-16 opacity-40" />
+        <h2 className="mt-6 text-3xl font-bold">Tonight&apos;s bedtime bridge</h2>
+        <p className="mt-3 max-w-lg text-base opacity-70">
+          Tap the mic and tell the agent about today. Watch the bedtime UI assemble itself, page by page, in real time.
         </p>
-        <p className="mt-3 text-lg leading-8">{story}</p>
       </div>
-      <p className="mt-4 text-sm leading-6 text-[#5a6257]">
-        Provider: {voicePlan.provider}. Voice: {voicePlan.voiceName}.{" "}
-        {voicePlan.safetyNote}
-      </p>
-    </section>
+    );
+  }
+
+  const sorted = [...modules].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  const [hero, ...rest] = sorted;
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-5">
+      <AnimatePresence mode="popLayout">
+        {hero && (
+          <motion.div key={hero.id} layout>
+            <ModuleRenderer module={hero} hero />
+          </motion.div>
+        )}
+        {rest.length > 0 && (
+          <motion.div layout className="grid gap-5 md:grid-cols-2">
+            {rest.map((m) => (
+              <motion.div key={m.id} layout>
+                <ModuleRenderer module={m} />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {isGenerating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-current/30 bg-current/5 px-4 py-3 text-sm opacity-70"
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Agent composing the next module…
+        </motion.div>
+      )}
+    </div>
   );
 }
 
-function YouTubeView({
-  approved,
-  onApprove,
-}: {
-  approved: boolean;
-  onApprove: () => void;
-}) {
-  const toyRecommendation = toyCandidates[0];
-  const approval = approved
-    ? createMockPurchaseApproval(toyRecommendation)
-    : undefined;
+// ---------- MODE PANELS (Voice / Print / YouTube / Toy) ----------
+
+function VoiceMode({ story, storyTitle, tone }: { story: string; storyTitle?: string; tone: Tone }) {
+  const [playing, setPlaying] = useState(false);
+  function toggle() {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (playing) {
+      window.speechSynthesis.cancel();
+      setPlaying(false);
+      return;
+    }
+    const u = new SpeechSynthesisUtterance(story);
+    u.rate = tone === "calmer" ? 0.78 : 0.92;
+    u.pitch = tone === "sillier" ? 1.15 : 0.95;
+    u.onend = () => setPlaying(false);
+    u.onerror = () => setPlaying(false);
+    window.speechSynthesis.speak(u);
+    setPlaying(true);
+  }
 
   return (
-    <section className="rounded-lg border border-[#d7d2c4] bg-white p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#5f6f52]">
-            Guided YouTube Rail
-          </p>
-          <h2 className="mt-1 text-2xl font-semibold">
-            Parent-approved learning set
-          </h2>
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="rounded-3xl bg-gradient-to-br from-[#1f2940] via-[#162038] to-[#0a1124] p-8 text-white shadow-2xl">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a8b0cf]">Listen mode</p>
+        <h2 className="mt-2 text-3xl font-bold">{storyTitle ?? "Calm read-aloud"}</h2>
+        <button
+          onClick={toggle}
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-bold text-[#1f2940] shadow-lg"
+        >
+          <Volume2 className="h-5 w-5" />
+          {playing ? "Pause" : "Play story"}
+        </button>
+        <div className="mt-6 flex h-16 items-end gap-1">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <motion.span
+              key={i}
+              className="w-1.5 rounded-full bg-[#7d8fc7]"
+              animate={
+                playing
+                  ? { height: ["20%", `${30 + (Math.sin(i + Date.now() / 200) + 1) * 30}%`, "20%"] }
+                  : { height: "20%" }
+              }
+              transition={{ repeat: playing ? Infinity : 0, duration: 1.4, delay: i * 0.03 }}
+            />
+          ))}
         </div>
-        <Truck className="h-7 w-7 text-[#5f6f52]" />
       </div>
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        {videoCards.map((video) => (
-          <article
-            key={video.title}
-            className="rounded-lg border border-[#d7d2c4] bg-[#fdfbf4] p-4"
-          >
-            <p className="text-sm font-semibold text-[#5f6f52]">
-              {video.channel}
-            </p>
-            <h3 className="mt-2 text-lg font-semibold leading-6">
-              {video.title}
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-[#4d5748]">
-              {video.reason}
-            </p>
-            <p className="mt-3 text-sm font-semibold leading-6">
-              {video.prompt}
-            </p>
+      <div className="rounded-2xl border border-current/10 bg-white/70 p-6 text-[#1c211c] backdrop-blur">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#5f6f52]">Transcript ({tone})</p>
+        <p className="mt-3 text-base leading-7">{story}</p>
+      </div>
+    </div>
+  );
+}
+
+function PrintMode({ modules, onPrint }: { modules: GeneratedModule[]; onPrint: () => void }) {
+  const story = modules.find((m) => m.kind === "story" || m.kind === "lullaby");
+  const prompts = modules.find((m) => m.kind === "prompt");
+  return (
+    <div className="mx-auto max-w-4xl space-y-5">
+      <button
+        onClick={onPrint}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#233325] px-5 py-3 text-base font-bold text-white shadow-lg"
+      >
+        <Printer className="h-5 w-5" />
+        Print or save PDF
+      </button>
+      <div className="grid gap-4 md:grid-cols-2">
+        {story && (
+          <article className="rounded-2xl border-2 border-dashed border-[#7a715f] bg-[#fefcf2] p-7">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7a715f]">Child page</p>
+            <h3 className="mt-3 text-3xl font-bold leading-tight text-[#1c211c]">{story.title}</h3>
+            <p className="mt-4 text-lg leading-8 text-[#1c211c]">{story.body}</p>
+          </article>
+        )}
+        {prompts && (
+          <article className="rounded-2xl border-2 border-dashed border-[#7a715f] bg-[#fefcf2] p-7">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7a715f]">Parent page</p>
+            <h3 className="mt-3 text-2xl font-bold leading-tight text-[#1c211c]">Read-aloud guide</h3>
+            <p className="mt-3 text-base leading-7 text-[#1c211c]">{prompts.body}</p>
+          </article>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const videoCards = [
+  { title: "Red Light, Green Light movement song", channel: "Seeded preschool catalog", reason: "Practices stop/go body control from Move It Week 2.", prompt: "What does your body do when red?" },
+  { title: "Recycling truck cleanup story", channel: "Seeded vehicle catalog", reason: "Connects garbage truck interest to responsibility.", prompt: "What goes in the recycling bin?" },
+  { title: "Basketball bounce and count", channel: "Seeded movement catalog", reason: "Sports heroes meet counting and rhythm.", prompt: "Count three quiet bounces?" },
+];
+
+function YouTubeMode({ approved, onApprove }: { approved: boolean; onApprove: () => void }) {
+  return (
+    <div className="mx-auto max-w-4xl space-y-4">
+      <div className="flex items-center gap-3">
+        <Truck className="h-7 w-7 opacity-70" />
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] opacity-70">Guided learning videos</p>
+          <h2 className="text-xl font-bold">Parent-approved set, with stop point</h2>
+        </div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        {videoCards.map((v, i) => (
+          <article key={v.title} className="rounded-2xl border border-current/10 bg-white/70 p-4 text-[#1c211c] backdrop-blur">
+            <div className={`mb-3 flex aspect-video items-center justify-center rounded-xl ${i === 0 ? "bg-rose-200" : i === 1 ? "bg-emerald-200" : "bg-amber-200"} text-4xl`}>
+              <PlayCircle className="h-12 w-12 text-white drop-shadow" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#5f6f52]">{v.channel}</p>
+            <h3 className="mt-1 text-base font-bold leading-5">{v.title}</h3>
+            <p className="mt-2 text-xs leading-5 text-[#4d5748]">{v.reason}</p>
+            <p className="mt-2 text-xs font-semibold">Ask: {v.prompt}</p>
           </article>
         ))}
       </div>
-      <div className="mt-5 flex flex-col gap-3 rounded-lg border border-[#d7d2c4] p-4 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm leading-6 text-[#4d5748]">
-          Stop point: watch one video, then print or play the follow-up
-          recycling-truck cleanup game.
-        </p>
-        <button
-          onClick={onApprove}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-[#233325] px-4 py-2 text-sm font-semibold text-white"
-        >
-          <CheckCircle2 className="h-4 w-4" />
-          {approved ? "Approved" : "Approve set"}
-        </button>
-      </div>
-    </section>
+      <button
+        onClick={onApprove}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#233325] px-5 py-3 text-base font-bold text-white"
+      >
+        <CheckCircle2 className="h-5 w-5" />
+        {approved ? "Approved" : "Approve set"}
+      </button>
+    </div>
   );
 }
 
-function ToyView({
-  approved,
-  onApprove,
-}: {
-  approved: boolean;
-  onApprove: () => void;
-}) {
-  const toyRecommendation = toyCandidates[0];
-  const approval = approved
-    ? createMockPurchaseApproval(toyRecommendation)
-    : undefined;
-
+function ToyMode({ approved, onApprove }: { approved: boolean; onApprove: () => void }) {
+  const toy = toyCandidates[0];
+  const approval = approved ? createMockPurchaseApproval(toy) : undefined;
   return (
-    <section className="rounded-lg border border-[#d7d2c4] bg-white p-5">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#5f6f52]">
-          Mock Commerce Rail
-        </p>
-        <h2 className="mt-1 text-2xl font-semibold">
-          Hands-on learning extension
-        </h2>
-      </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-[1fr_280px]">
-        <article className="rounded-lg border border-[#d7d2c4] bg-[#fdfbf4] p-5">
-          <p className="text-sm font-semibold text-[#5f6f52]">Toy match</p>
-          <h3 className="mt-2 text-2xl font-semibold">
-            {toyRecommendation.title}
-          </h3>
-          <p className="mt-3 text-base leading-7">
-            {toyRecommendation.learningReason}
-          </p>
-          <p className="mt-4 text-sm font-semibold text-[#4d5748]">
-            {toyRecommendation.safetyNote}
-          </p>
-          <p className="mt-4 text-sm leading-6 text-[#4d5748]">
-            Next provider: Amazon handoff or protocol-native checkout when a
-            merchant supports agentic commerce.
-          </p>
-        </article>
-        <aside className="rounded-lg border border-[#d7d2c4] bg-[#fdfbf4] p-5">
-          <p className="text-sm font-semibold text-[#5f6f52]">
-            Purchase approval
-          </p>
-          <p className="mt-3 text-3xl font-semibold">
-            {toyRecommendation.priceLabel}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-[#4d5748]">
-            Mock checkout only. No real money moves in the demo.
-          </p>
-          {approval && (
-            <p className="mt-3 rounded-md bg-[#e9f0dd] px-3 py-2 text-xs font-semibold leading-5 text-[#45543d]">
-              {approval.auditNote}
-            </p>
-          )}
+    <div className="mx-auto max-w-3xl space-y-4">
+      <article className="rounded-3xl border border-current/10 bg-gradient-to-br from-[#f0e6ff] to-[#dccaf4] p-7 text-[#3d1d6e] shadow-lg">
+        <p className="text-xs font-bold uppercase tracking-[0.12em]">Hands-on extension</p>
+        <div className="mt-3 flex items-start gap-5">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-white text-6xl shadow-sm">🏀</div>
+          <div className="flex-1">
+            <h3 className="text-2xl font-bold">{toy.title}</h3>
+            <p className="mt-2 text-base leading-7">{toy.learningReason}</p>
+            <p className="mt-2 text-sm font-semibold opacity-80">{toy.safetyNote}</p>
+          </div>
+        </div>
+        <div className="mt-5 flex items-center justify-between rounded-2xl bg-white/60 p-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.12em]">Mock purchase</p>
+            <p className="text-3xl font-bold">{toy.priceLabel}</p>
+          </div>
           <button
             onClick={onApprove}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#233325] px-4 py-2 text-sm font-semibold text-white"
+            className="inline-flex items-center gap-2 rounded-full bg-[#3d1d6e] px-5 py-3 text-sm font-bold text-white"
           >
-            <FileText className="h-4 w-4" />
-            {approved ? "Receipt created" : "Approve mock purchase"}
+            <CheckCircle2 className="h-4 w-4" />
+            {approved ? "Receipt created" : "Approve"}
           </button>
-        </aside>
-      </div>
-    </section>
+        </div>
+        {approval && (
+          <p className="mt-3 rounded-xl bg-white/70 px-3 py-2 text-xs font-semibold">{approval.auditNote}</p>
+        )}
+      </article>
+    </div>
   );
 }
+
+// re-export for type
+export type { Tone };

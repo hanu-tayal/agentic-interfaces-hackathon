@@ -1,80 +1,34 @@
 import { NextResponse } from "next/server";
 import {
+  coerceManifest,
   createFallbackInterface,
+  type GenerateRequest,
   type GeneratedInterface,
 } from "@/lib/bedtime/generative-ui";
+import { generateManifest } from "@/lib/bedtime/llm-router";
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => ({}));
+  const body = (await request.json().catch(() => ({}))) as Partial<GenerateRequest>;
   const tone = body.tone === "calmer" || body.tone === "sillier" ? body.tone : "balanced";
   const duration = body.duration === "2-minute" ? "2-minute" : "7-minute";
-  const fallback = createFallbackInterface({ tone, duration });
+  const freeform = typeof body.freeform === "string" ? body.freeform : undefined;
+  const context = body.context;
+  const req: GenerateRequest = { tone, duration, freeform, context };
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json<GeneratedInterface>({
-      ...fallback,
-      generatedBy: process.env.GEMINI_API_KEY ? "gemini-ready" : "local-fallback",
-    });
-  }
+  const fallback = createFallbackInterface(req);
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250929",
-        max_tokens: 900,
-        temperature: 0.4,
-        system:
-          "Return only valid JSON for a toddler bedtime generative UI manifest. Keep it safe, concise, parent-approved, printable, and grounded in the provided context. Do not include private names or links.",
-        messages: [
-          {
-            role: "user",
-            content: JSON.stringify({
-              tone,
-              duration,
-              requiredShape: {
-                generatedBy: "anthropic",
-                intent: "string",
-                layout: [
-                  "story",
-                  "prompt",
-                  "food",
-                  "movement",
-                  "print",
-                  "voice",
-                  "youtube",
-                  "toy",
-                ],
-                modules: fallback.modules,
-              },
-              context: body.context,
-            }),
-          },
-        ],
-      }),
+    const result = await generateManifest({ tone, duration, freeform, context });
+    const manifest = coerceManifest(result.raw, fallback, result.generatedBy);
+    return NextResponse.json<GeneratedInterface & { _tried: string[] }>({
+      ...manifest,
+      _tried: result.tried,
     });
-
-    if (!response.ok) {
-      return NextResponse.json(fallback);
-    }
-
-    const result = await response.json();
-    const text = result.content?.[0]?.text;
-    const generated = JSON.parse(text) as GeneratedInterface;
-
-    return NextResponse.json({
+  } catch (e) {
+    return NextResponse.json<GeneratedInterface & { _tried?: string[]; _error?: string }>({
       ...fallback,
-      ...generated,
-      generatedBy: "anthropic",
-      modules: Array.isArray(generated.modules) ? generated.modules : fallback.modules,
-      layout: Array.isArray(generated.layout) ? generated.layout : fallback.layout,
+      _tried: [(e as Error).message],
+      _error: "all providers failed; serving local fallback",
     });
-  } catch {
-    return NextResponse.json(fallback);
   }
 }
