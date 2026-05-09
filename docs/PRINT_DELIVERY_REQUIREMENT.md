@@ -19,12 +19,15 @@ Local printer check on the development machine:
 
 - `lpstat -d` reports no system default destination.
 - `lpstat -p` did not return a usable printer list from the shell.
+- `system_profiler SPPrintersDataType` reports an empty configured printer list.
+- macOS print preferences do show last-used printer history, including HP Color LaserJet Pro MFP 3301, HP LaserJet M14/M17, and a workplace printer, but these are not currently exposed as a CUPS default destination.
 
 Implication:
 
-- The hackathon MVP should not depend on a configured system printer.
+- The hackathon MVP should not depend on direct CUPS/default-printer integration.
 - Use browser print and PDF export as the reliable path.
 - If a printer is configured later, the same print-ready page can go through the OS print dialog.
+- The app can later offer "last-used printer" hints, but should verify printer availability before claiming it can print directly.
 
 ## Home Printer Path
 
@@ -107,4 +110,3 @@ This should use the same purchase approval rail as toy commerce:
 - Do not print child photos by default.
 - Do not send print jobs to third-party services without explicit approval.
 - Keep the default output generic enough to be safely left on a kitchen counter.
-
