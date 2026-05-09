@@ -1,6 +1,6 @@
 # Agentic Interfaces Hackathon
 
-Private working repo for the Seattle AI Tinkerers Generative UI Global Hackathon on May 9, 2026.
+Public working repo for the Seattle AI Tinkerers Generative UI Global Hackathon on May 9, 2026.
 
 Event: https://seattle.aitinkerers.org/hackathons/h_x_n9rN2gpzc
 
@@ -9,6 +9,16 @@ Working brief: [HACKATHON.md](HACKATHON.md)
 Product brief: [docs/PRODUCT_BRIEF.md](docs/PRODUCT_BRIEF.md)
 
 Build decision: [docs/BUILD_DECISION.md](docs/BUILD_DECISION.md)
+
+Daycare bedtime context: [docs/DAYCARE_BEDTIME_CONTEXT.md](docs/DAYCARE_BEDTIME_CONTEXT.md)
+
+Home media context: [docs/HOME_MEDIA_CONTEXT.md](docs/HOME_MEDIA_CONTEXT.md)
+
+Print and publishing strategy: [docs/PRINT_AND_PUBLISHING.md](docs/PRINT_AND_PUBLISHING.md)
+
+Toy commerce requirement: [docs/TOY_COMMERCE_REQUIREMENT.md](docs/TOY_COMMERCE_REQUIREMENT.md)
+
+Voice output requirement: [docs/VOICE_OUTPUT_REQUIREMENT.md](docs/VOICE_OUTPUT_REQUIREMENT.md)
 
 ## Hackathon Target
 
@@ -33,7 +43,7 @@ The global submission is due by 6:00 PM Pacific on May 9, 2026.
 - Protocols used: A2UI, AG-UI, CopilotKit, MCP Apps, or other
 - Team member names and roles
 
-Note: this repo is currently private as requested. The event handbook says the submission requires a public GitHub repo link, so flip visibility before final submission.
+Note: this repo is public for hackathon submission. Keep private data, raw emails, child photos, account history, and secret/coupon material out of commits.
 
 ## Demo Rules
 

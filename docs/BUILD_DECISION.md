@@ -23,7 +23,7 @@ The hackathon rewards working code, originality, and effective use of generative
 - Local persistence through Postgres/Redis
 - MCP server package for deployable app surfaces
 
-For ErrandOS, that means the team can spend time replacing the sample "Notion leads" domain with life-admin errands instead of building protocol plumbing from scratch.
+For Bedtime School Bridge, that means the team can spend time replacing the sample "Notion leads" domain with daycare reports, curriculum context, and generated bedtime teaching modules instead of building protocol plumbing from scratch.
 
 ## Stack Choice
 
@@ -47,8 +47,8 @@ Keep model use behind the starter kit's model-switching seam so the team can fal
 
 Use a mixed strategy:
 
-- Controlled components for high-risk action rails: payment approvals, voice-call approvals, message drafts, audit trail.
-- Declarative/A2UI-style generated layouts for flexible errand boards, timelines, checklists, and triage views.
+- Controlled components for sensitive input/output/action rails: Gmail import, source evidence, privacy notices, print export, voice playback, publishing-readiness controls, toy recommendations, and purchase approvals.
+- Declarative/A2UI-style generated layouts for flexible bedtime modules, school-theme cards, story cards, food prompts, movement prompts, and parent scripts.
 - MCP Apps/open-ended UI only as a bonus surface if the core app is stable.
 
 This gives a reliable demo while still proving that the UI is generated at runtime.
@@ -99,51 +99,69 @@ Use Daytona only if:
 
 Do not commit attendee coupon codes to the public repo.
 
-## MVP Architecture For ErrandOS
+## MVP Architecture For Bedtime School Bridge
 
-Replace the starter's sample domain with ErrandOS:
+Replace the starter's sample domain with Bedtime School Bridge:
 
-1. Mock source data: emails, messages, calls, calendar items, bills, Mother's Day context, toddler constraints.
-2. Agent prompt: classify life-admin inputs and decide which UI modules to generate.
+1. Mock source data: sanitized daycare daily reports, weekly curriculum/newsletters, meals, nap notes, school activities, and home media interests.
+2. Agent prompt: classify daycare context and decide which bedtime teaching modules to generate.
 3. UI modules:
-   - errand priority board
-   - Mother's Day rescue plan
-   - toddler coverage block
-   - payment approval card
-   - voice-call approval card
-   - message draft composer
-   - audit trail
-4. Mock action rails:
-   - payment mandate approval -> fake receipt
-   - call approval -> fake transcript/outcome
-   - draft approval -> copied/saved message state
+   - tonight's bridge overview
+   - school-theme cards
+   - bedtime story
+   - food-learning card
+   - movement prompt
+   - emotion/body-language prompt
+   - home-interest match
+   - print-pack preview
+   - voice/read-aloud companion
+   - toy/book recommendation
+   - purchase approval card
+   - parent script
+   - evidence chips
+4. Mock input rails:
+   - daycare report selector
+   - curriculum selector
+   - home-interest selector
+   - tone and duration controls
+   - print controls
+   - voice controls
+   - toy budget/category controls
+   - source evidence summary
 5. Demo path:
-   - choose or paste messy life context
-   - generate cockpit
-   - approve a mock payment
-   - approve a mock call
-   - show audit trail and remaining errands
+   - choose a sanitized daycare report and weekly theme
+   - add home interests such as garbage trucks, recycling, basketball, and movement songs
+   - generate tonight's bedtime bridge
+   - switch to 2-minute version
+   - make it calmer or sillier
+   - generate a printable page or mini-book
+   - play a calm generated narration
+   - approve a mock toy/book purchase
+   - show evidence chips and privacy posture
 
 ## What To Avoid
 
-- Do not spend the first hour integrating real Gmail, SMS, phone calls, or payments.
+- Do not spend the first hour integrating production Gmail sync, YouTube history export, direct KDP publishing, premium TTS providers, or real payment execution.
 - Do not build a plain chatbot with a static task board.
 - Do not make the app depend on private coupon codes or attendee-only setup to run.
-- Do not use real purchases or real outbound calls without explicit safety gates.
+- Do not commit raw emails, child photos, photo links, raw watch history, or account identifiers.
+- Do not automate publishing of private child/daycare content.
+- Do not move real money in the hackathon demo.
+- Do not clone voices or imitate YouTube creators.
 - Do not introduce Gas City/gstack as mandatory dependencies unless they directly speed the team today.
 
 ## Build Plan
 
 1. Import the starter kit into this repo.
 2. Verify the starter runs locally with the minimum required env.
-3. Rename and retheme to ErrandOS.
-4. Replace sample Notion leads data with local ErrandOS mock data.
+3. Rename and retheme to Bedtime School Bridge.
+4. Replace sample Notion leads data with sanitized daycare/home-interest mock data.
 5. Implement generated UI module schema and renderer.
-6. Add controlled action cards for payment and voice-call approvals.
+6. Add controlled input/evidence/action cards for daycare report, curriculum, home interests, print export, voice playback, toy recommendations, mock purchase approval, and privacy.
 7. Add demo prompt and README setup instructions.
 8. Run local build/lint/smoke test.
 9. Record demo.
 
 ## Decision
 
-Proceed with the official starter kit as the base. Use Codex/OMX to build. Keep Gas City, gstack, real payments, real calls, and Daytona as optional accelerators or later integrations, not the core path.
+Proceed with the official starter kit as the base. Use Codex/OMX to build. Keep Gas City, gstack, real Gmail sync, real YouTube export, real KDP publishing, real payments, and Daytona as optional accelerators or later integrations, not the core path.

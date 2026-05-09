@@ -1,172 +1,234 @@
-# ErrandOS Product Brief
+# Bedtime School Bridge Product Brief
 
 ## Working Name
 
-ErrandOS
+Bedtime School Bridge
 
 ## One-Sentence Pitch
 
-ErrandOS turns scattered life obligations into a generated action cockpit where an AI agent creates the exact UI needed to triage, approve, pay, call, schedule, and finish personal errands.
+Bedtime School Bridge turns daycare emails and home interests into printable bedtime stories, activities, and parent scripts, helping parents reinforce what their child learned, ate, practiced, and experienced without adding more screen time.
 
 ## Core Problem
 
-Modern life admin is fragmented across email, phone calls, web portals, calendars, texts, payment flows, reminders, and family context. A normal chatbot can summarize the mess, but it cannot give the user a purpose-built operational surface for each errand.
+A child's daycare experience is captured in fragmented daily reports, curriculum newsletters, menus, photos, and teacher notes. Parents often want to connect with their child at night, but they do not have time to read every email and turn it into age-appropriate conversation, stories, activities, and food curiosity.
 
-ErrandOS should be an agent-generated interface for the current life situation, not a static task app.
+A normal chatbot can summarize the school day, but it cannot give the parent a purpose-built bedtime teaching surface for that specific day.
+
+Bedtime School Bridge should generate the nightly interface from the day's school context, then turn the best output into print-ready pages for the child.
 
 ## Hackathon Angle
 
-This fits the "Kill the Dashboard" and "The Copilot That Ships" tracks:
+This fits the "No Designer, No Problem", "Kill the Dashboard", and "The Copilot That Ships" tracks:
 
-- No fixed dashboard: the agent generates the dashboard from the user's current errand pile.
-- No chat-only flow: the user receives interactive cards, timelines, forms, approval gates, payment controls, call scripts, and completion states.
-- Working-code demo: use local mocked errands, contacts, merchants, and call/payment rails to demonstrate the runtime UI generation pattern.
+- No fixed dashboard: the agent generates tonight's teaching surface from daycare context.
+- No chat-only flow: the user receives story cards, prompts, food cards, mini lessons, print controls, voice controls, toy recommendations, tone controls, and source evidence.
+- Working-code demo: use sanitized daycare-like records derived from real email patterns.
 
 ## Personal Context Seed
 
 Initial life context:
 
 - Parent of a toddler.
-- Toddler likes YouTube videos such as Super Simple, garbage trucks, and Blippi.
-- Mother's Day is Sunday, May 10, 2026.
-- User is tired of errands scattered across phone, email, web, and other surfaces.
+- Daycare sends daily reports and weekly curriculum/newsletters to Gmail.
+- Reports include what the child learned, ate, practiced, and experienced.
+- Parent wants bedtime to connect to school learning without manually reading every email.
 
 Demo prompt:
 
-> Tomorrow is Mother's Day. I have a toddler, I am behind on errands, and my life admin is scattered across email, phone calls, texts, payments, and calendar reminders. Build me the operating surface for the next 24 hours.
+> Here is today's daycare report and this week's classroom curriculum. Build a 7-minute bedtime teaching plan that helps me talk with my child about what he learned, ate, and practiced today.
 
 ## Generated UI Surfaces
 
-The agent can generate different UI modules depending on the errand cluster:
+The agent can generate different UI modules depending on the daycare report:
 
-- Priority board: urgent, today, waiting, delegated, done.
-- Mother's Day rescue panel: gift options, message drafts, schedule, fallback plans.
-- Toddler time block: toddler-friendly activity/video window while errands are handled.
-- Payment approval card: amount, merchant, reason, max spend, expiry, approve/decline.
-- Voice-call task card: who to call, goal, script, allowed facts, call status, transcript.
-- Email/text reply composer: generated draft with tone controls and send/copy buttons.
-- Document checklist: missing fields, upload slots, due dates, completion proof.
-- Timeline: what must happen before stores close, delivery cutoffs, family schedule.
-- Audit trail: user approvals, completed actions, pending external confirmations.
+- Tonight's bridge: a short parent overview.
+- School themes: weekly theme, next theme, and character focus.
+- Bedtime story: a short story using today's school activities, foods, and home interests.
+- Talk prompts: toddler-level questions to ask in bed.
+- Food connection: playful facts and questions about meals from the report.
+- Movement prompt: a gentle activity if the day involved movement or body awareness.
+- Emotion prompt: feelings vocabulary if the day involved social-emotional learning.
+- Mini lesson: 2-3 concepts tied to the curriculum theme.
+- Print pack: printable story page, coloring/activity page, and tomorrow card.
+- Voice companion: calm narration, read-aloud support, or call-and-response prompts.
+- Home interest bridge: connects school themes to known interests such as garbage trucks, recycling, sports, vehicles, and songs.
+- Toy match: age-appropriate toy/book/activity recommendations tied to school themes and home interests.
+- Tomorrow follow-up: one tiny activity for the next morning.
+- Parent script: exact words to say, with calmer/funnier/shorter variants.
+- Evidence chips: which report fields produced each module.
 
-## Action Rails
+## Input Rails
 
-ErrandOS should present external actions through explicit approval gates. The agent proposes; the user approves; the system records what happened.
+Bedtime School Bridge should ingest school context safely and show what it used.
 
-### Payment Rail
-
-Use cases:
-
-- Buy Mother's Day flowers, gift card, or brunch reservation deposit.
-- Pay a bill.
-- Purchase a toddler activity item.
-- Pay an API or service on behalf of the user.
-
-Relevant protocols and integrations:
-
-- Agent Payments Protocol (AP2): agent-led payments with signed user authorization.
-- Agentic Commerce Protocol (ACP): merchant checkout sessions and delegated payments.
-- x402: HTTP-native machine payments using `402 Payment Required`.
-- Stripe or mock PSP: pragmatic demo rail for checkout-style flows.
-
-Hackathon MVP:
-
-- Render a payment approval UI.
-- Simulate a constrained payment mandate: merchant, max amount, expiry, purpose, user approval.
-- Mock the final payment execution and receipt.
-- Keep real money disabled unless credentials and safety checks are intentionally added.
-
-### Voice/Phone Rail
+### Gmail Rail
 
 Use cases:
 
-- Call a restaurant for Mother's Day availability.
-- Call a pharmacy, doctor's office, daycare, mechanic, or service provider.
-- Handle a scripted errand where the agent needs to ask, confirm, and report back.
-
-Relevant protocols and integrations:
-
-- SIP: standard protocol for routing phone calls over the internet.
-- OpenAI Realtime API with SIP: route phone calls to a realtime voice agent.
-- Twilio Programmable Voice: make, receive, and monitor phone calls.
-- Vapi or Retell: managed voice-agent platforms for inbound/outbound calls.
+- Search daycare emails.
+- Pull daily reports and classroom newsletters.
+- Extract theme, meals, nap, activities, goals, and teacher notes.
+- Avoid storing raw child data in the public repo.
 
 Hackathon MVP:
 
-- Render a voice-call approval UI.
-- Generate the call objective, script, allowed disclosures, and fallback questions.
-- Simulate call progress: queued, dialing, in progress, completed.
-- Show a generated transcript and extracted outcome.
-- Optionally wire Twilio/Vapi later if credentials are available.
+- Use sanitized mock daycare records in the public demo.
+- Optionally show a Gmail import step locally if credentials are available.
+- Persist only structured, sanitized fields.
 
-### Calendar/Reminder Rail
+### Curriculum Rail
 
 Use cases:
 
-- Reserve time to complete errands.
-- Block toddler-friendly windows.
-- Schedule Mother's Day preparation.
-- Set follow-up reminders after calls or payments.
+- Attach a weekly theme to today's report.
+- Turn curriculum goals into parent-friendly language.
+- Link daily activities to the week's learning objective.
 
 Hackathon MVP:
 
-- Mock calendar slots locally.
-- Generate timeline and reminders.
-- Export or copy event details.
+- Seed a representative "Move It Week 2" curriculum.
+- Generate the bedtime surface from curriculum plus daily report.
+
+### Parent Interaction Rail
+
+Use cases:
+
+- Make the lesson calmer.
+- Make it sillier.
+- Shorten to 2 minutes.
+- Add food facts.
+- Add movement.
+- Save tonight's plan.
+- Print tonight.
+- Make a coloring-book page.
+- Make a 5-page mini-book.
+
+### Print And Publishing Rail
+
+Use cases:
+
+- Generate print-ready pages so the child gets paper instead of more video.
+- Export a PDF print pack for tonight.
+- Compile favorite generated stories into a monthly keepsake book.
+- Prepare, but do not automatically publish, a Kindle Direct Publishing-ready package.
+
+Hackathon MVP:
+
+- Generate a local printable PDF or browser print view.
+- Show print controls in the generated UI.
+- Include an AI-generated content/privacy disclosure panel.
+- Keep KDP as a future export target, not a live publishing integration.
+
+### Toy Commerce Rail
+
+Use cases:
+
+- Recommend physical toys, books, and print kits that reinforce today's school learning.
+- Prefer hands-on play and reading over more screen time.
+- Create a parent-approved cart.
+- Use agentic payment protocols when real commerce is enabled.
+
+Hackathon MVP:
+
+- Use a mock toy/book catalog.
+- Generate recommendations from daycare theme plus home interests.
+- Show a controlled purchase approval card.
+- Produce a mock receipt and audit trail.
+- Do not move real money.
+
+Future protocol target:
+
+- AP2-style parent mandates for verifiable purchase authorization.
+- x402-style payment where supported by merchant/API endpoints.
+- MCP/UCP-style merchant tools for product search, cart creation, checkout handoff, and receipt retrieval.
+
+### Voice Output Rail
+
+Use cases:
+
+- Turn generated bedtime story into calm audio.
+- Give the parent a read-aloud script with pacing.
+- Replace video with a short audio-and-print ritual.
+- Generate call-and-response prompts the child can answer.
+
+Hackathon MVP:
+
+- Add a `Listen` button for the generated story.
+- Use browser speech synthesis first, or server-side TTS if credentials are available.
+- Show transcript and AI-generated audio disclosure.
+- Do not imitate YouTube creators or clone private voices.
 
 ## MVP Scope
 
 Build a local web app that demonstrates:
 
-1. User enters or selects a messy life-admin scenario.
-2. Agent classifies errands and generates a UI schema.
-3. App renders the generated UI modules.
-4. User approves mock actions: pay, call, draft message, schedule, mark done.
-5. App shows an audit trail proving the agent did not act without approval.
+1. User chooses a sanitized daycare report or imports recent school context.
+2. Agent extracts meals, activities, themes, and developmental goals.
+3. Agent generates a UI schema for tonight's bedtime teaching plan.
+4. App renders interactive modules: story, prompts, food card, mini lesson, movement, print pack, voice companion, toy match, parent script, evidence.
+5. User changes tone/duration and sees the surface regenerate.
+6. User prints a one-page or mini-book version.
 
 ## Suggested Demo Flow
 
-1. Start with a plain text dump of life context and errands.
-2. Click "Generate ErrandOS".
-3. The app renders a custom cockpit:
-   - Mother's Day rescue plan
-   - Toddler coverage block
-   - Errand priority board
-   - Payment approval card
-   - Phone-call approval card
-   - Draft message composer
-4. Approve a mock flower purchase.
-5. Approve a mock restaurant call.
-6. Show resulting receipt, transcript summary, and remaining checklist.
+1. Start with a daycare-style report plus weekly theme.
+2. Click "Build Tonight's Bridge".
+3. The app renders a generated bedtime teaching surface:
+   - school themes
+   - 7-minute parent script
+   - short story
+   - food conversation card
+   - movement/emotion prompts
+   - print pack preview
+   - listen/read-aloud controls
+   - toy/book recommendation card
+   - tomorrow follow-up
+   - source evidence chips
+4. Click "2-minute version".
+5. Click "make it sillier".
+6. Click "make printable".
+7. Click "listen calmly".
+8. Click "find a hands-on toy".
+9. Approve a mock purchase and show that the UI generates a receipt/audit trail without real spending.
 
 ## Why This Is Generative UI
 
-ErrandOS does not present one fixed task dashboard. The agent reads the user's current life-admin situation and decides which interface components are needed. A different errand pile produces a different operational surface: forms, call controls, payment approvals, timelines, drafts, or checklists.
+Bedtime School Bridge does not present a fixed lesson dashboard. The agent reads the daily daycare report and weekly curriculum, then decides which interface components are needed. A movement-heavy day produces body, rhythm, and emotion modules. An Earth Day report produces nature, food, recycling, and responsibility modules. A gardening week produces plants, soil, food, and care modules.
 
 The core product claim is:
 
-> The agent is not just telling the user what to do. It is generating the interface for doing it.
+> The agent is not just summarizing school. It is generating tonight's teaching interface.
 
 ## Success Criteria
 
-- The demo visibly changes the UI based on user context.
-- At least one payment-like approval surface is generated.
-- At least one voice-call-like approval surface is generated.
-- Every external action has an explicit user approval step.
+- The demo visibly changes the UI based on daycare context.
+- At least one generated bedtime story is shown.
+- At least one food-learning module is shown.
+- At least one parent script/talk prompt module is shown.
+- A printable page or mini-book preview is shown.
+- A voice/read-aloud companion is shown.
+- A toy/book recommendation and mock purchase approval card are shown.
+- Source evidence is visible without exposing raw private email.
 - The app can run locally from the public repo.
-- README includes setup, demo prompt, protocols used, and safety notes.
+- README includes setup, demo prompt, protocols used, and privacy notes.
 
 ## Non-Goals For Hackathon MVP
 
-- Real purchases.
-- Real outbound calls without explicit operator setup.
-- Full Gmail, SMS, or calendar integration.
-- Permanent storage of sensitive personal data.
-- Autonomous external actions without approval.
+- Persisting raw Gmail data.
+- Showing private child photos.
+- Full production Gmail sync.
+- Medical, nutritional, or developmental diagnosis.
+- Replacing teacher/parent judgment.
+- Automated KDP publishing.
+- Real purchases without explicit parent approval.
+- Voice cloning or creator imitation without explicit consent.
+- Encouraging more bedtime video watching.
 
 ## Submission Metadata Draft
 
-- Project name: ErrandOS
-- Pitch: ErrandOS turns scattered life obligations into a generated action cockpit where an AI agent creates the exact UI needed to triage, approve, pay, call, schedule, and finish errands.
-- Protocols used: MCP Apps or generated UI schema, AP2-inspired payment mandates, ACP-inspired checkout sessions, x402-inspired paid-resource flow, SIP/Twilio/OpenAI Realtime-inspired voice-call rail.
+- Project name: Bedtime School Bridge
+- Pitch: Bedtime School Bridge turns daycare emails and home interests into printable bedtime stories, activities, and parent scripts, helping parents reinforce school learning without adding more screen time.
+- Protocols used: CopilotKit/AG-UI for agent-to-frontend interaction, A2UI-style declarative UI schema for generated bedtime modules, optional MCP/Gmail rail for email context, AP2/x402-inspired mock commerce rail for parent-approved purchases.
 - Team roles: TBD.
+
+Previous concept note: this repo originally explored ErrandOS, a broad life-admin cockpit. The current build target is the narrower daycare-to-bedtime product because it is more personal, privacy-aware, and demoable within the hackathon window.
