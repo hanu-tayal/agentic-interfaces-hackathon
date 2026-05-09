@@ -1,70 +1,91 @@
 # Bedtime School Bridge
 
-Public hackathon repo for the Seattle AI Tinkerers Generative UI Global Hackathon.
+> A voice-activated iPad bedtime UI that the agent assembles, page by page, from one parent sentence about today.
 
-Bedtime School Bridge turns daycare learning signals, meals, and home interests into a parent-approved bedtime learning interface: digital story, printable pages, voice read-aloud, guided YouTube recommendations, and mock toy-commerce approval.
+Public repo for the [Seattle AI Tinkerers Generative UI Global Hackathon](https://seattle.aitinkerers.org/hackathons/h_x_n9rN2gpzc), May 9, 2026.
 
-## Demo
+## What it is
 
-The current working demo is a Next.js app built on the Generative UI Global Hackathon starter kit.
+A parent walks up to the iPad. They tap a mic and say one sentence about tonight. The agent generates an interactive bedtime interface their 2.5-year-old will actually use:
+
+- **Tap-through illustrated picture book** — big bouncing emoji per page, minimal text, auto-TTS on advance.
+- **Tap-to-do movement game** — 2×2 grid of giant tappable steps with celebration on done.
+- **Food tiles** — tap a tile to bounce + speak the food name.
+- **Voice mascot** — animated character with waveform; tap to listen.
+- **Breathing reset (invented kind)** — when the parent mentions stress, the agent emits a `feelings-reset` module the codebase has no prebuilt route for; frontend dispatches by renderer with fallback.
+
+The UI re-organizes itself when the tone changes:
+- **Calmer** → dark night-sky background, stack layout, voice-first.
+- **Sillier** → bright sunny gradient, movement-first grid.
+- **Balanced** → full bridge.
+
+Same source context, fundamentally different interface.
+
+## Why it's generative UI
+
+A chatbot returns text. This app emits an **interactive interface for a non-reader**:
+
+- Voice in → UI out.
+- Variable module sets per tone (2–5 modules).
+- Invented module kinds for parent-supplied context.
+- Per-module interactivity (tap, listen, breathe) built for a 2.5-year-old.
+
+## Quick start
 
 ```bash
+git clone https://github.com/hanu-tayal/agentic-interfaces-hackathon
+cd agentic-interfaces-hackathon
+cp .env.example .env  # GEMINI_API_KEY optional; demo runs without
 npm install
-npm run dev:ui
+npm run dev:ui        # http://localhost:3010
 ```
 
-Open http://localhost:3010.
+The app ships with a deterministic local manifest fallback so it runs without any credentials.
 
-The frontend-only path is intentional for the live hackathon demo. It avoids requiring Notion, Docker, or private mailbox data while still preserving the starter kit structure for CopilotKit, AG-UI/A2UI, MCP Apps, and future agent integration.
+## Demo flow
 
-## What To Show
+1. Open the app. Tap the floating mic at the bottom.
+2. Say a sentence: *"Move It Week 2, garbage trucks, basketball, calmer tonight"*.
+3. Watch cards stream in. Switch tone with the top-right buttons.
+4. Tap a card to interact: turn pages, tick movement steps, bounce food tiles.
 
-1. Click **Build bridge** to call `/api/bedtime/generate`.
-2. Point at the generated UI manifest: provider, chosen layout, and renderer names.
-3. Switch tone/duration to show the manifest and rendered interface regenerate.
-4. Show the generated digital story, print pack, browser voice read-aloud, guided YouTube rail, and mock toy approval.
-5. Emphasize that raw Gmail, YouTube history, child photos, private links, secrets, and payment credentials are not committed.
+Sample prompts (visible above the dock):
+- "Move It Week 2, garbage trucks, basketball, calmer tonight"
+- "Rough drop-off this morning, dad gone for two days"  *(triggers the feelings-reset module)*
+- "Two minutes, super silly, recycling truck story"
 
-## Why This Is Generative UI
+## Protocols and stack
 
-The UI is not a fixed dashboard. The generation endpoint emits a typed interface manifest:
+- **CopilotKit** (v2 provider from the starter kit)
+- **A2UI-style declarative manifest** for module dispatch
+- **Web Speech API** for voice input
+- **Multi-provider LLM router** with cascade: Google AI Studio → Vertex Gemini → Anthropic direct → OpenRouter → local fallback
+- **Next.js 15 / React 19** + Turbopack
+- **framer-motion** for layout transitions
+- **Tailwind** for tone-driven theming
 
-- `layout`: which surfaces should exist tonight.
-- `modules`: the content and evidence for each surface.
-- `renderer`: the component type the agent chose for each module.
+See [SUBMISSION.md](SUBMISSION.md) for the full hackathon submission metadata.
 
-The frontend renders from that manifest, so the agent can compose a different interface for a short night, a calmer bedtime, a print-first evening, or a commerce/voice-heavy follow-up.
+## Privacy
 
-## LLM Providers
+- Public repo uses sanitized seed data only.
+- No raw Gmail, YouTube history, child photos, names, or links.
+- Mock toy commerce — no real payments move.
+- TTS via browser SpeechSynthesis (child voice not uploaded).
 
-This repo supports the starter kit's Gemini path and can be extended to Anthropic/Groq/Vertex. Do not commit keys.
+## Built on top of
 
-Useful local env names:
+[Generative UI Global Hackathon Starter Kit](https://go.copilotkit.ai/GenUITemplate). The bedtime product, manifest schema, multi-provider router, voice flow, and toddler-first interactive renderers are original to this build.
 
-- `GEMINI_API_KEY` for Google AI Studio Gemini API.
-- `GOOGLE_APPLICATION_CREDENTIALS`, `GOOGLE_CLOUD_PROJECT`, and `GOOGLE_CLOUD_LOCATION` for Vertex AI.
-- `ANTHROPIC_API_KEY` or `GROQ_API_KEY` for fallback provider experiments.
+## Repo layout
 
-Gemini credits should be claimed through the event flow and stored only in local `.env` files.
-
-## Documentation
-
-- [Hackathon requirements](HACKATHON.md)
-- [Product brief](docs/PRODUCT_BRIEF.md)
-- [Build decision](docs/BUILD_DECISION.md)
-- [Daycare context](docs/DAYCARE_BEDTIME_CONTEXT.md)
-- [Home media context](docs/HOME_MEDIA_CONTEXT.md)
-- [Print and publishing](docs/PRINT_AND_PUBLISHING.md)
-- [Voice output](docs/VOICE_OUTPUT_REQUIREMENT.md)
-- [Agent commerce and voice adapters](docs/AGENT_COMMERCE_AND_VOICE_ADAPTERS.md)
-- [Guided YouTube](docs/YOUTUBE_LEARNING_REQUIREMENT.md)
-- [Toy commerce](docs/TOY_COMMERCE_REQUIREMENT.md)
-- [Demo plan](docs/DEMO_PLAN.md)
-- [Winning demo strategy](docs/WINNING_DEMO_STRATEGY.md)
-
-## Starter Kit
-
-Based on the hackathon starter kit:
-https://github.com/jerelvelarde/Generative-UI-Global-Hackathon-Starter-Kit
-
-Starter docs remain in [dev-docs](dev-docs).
+```
+apps/frontend/         Next.js app (the demo)
+  src/app/page.tsx                  Main canvas + floating voice dock
+  src/app/api/bedtime/generate/     Manifest generator endpoint
+  src/components/bedtime/           Interactive renderers (story, movement, etc.)
+  src/lib/bedtime/                  Schema, router, voice-input
+docs/                  Product brief, demo plan, build decision, requirement docs
+HACKATHON.md           Hackathon brief
+SUBMISSION.md          Submission form metadata
+```
