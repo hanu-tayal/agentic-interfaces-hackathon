@@ -6,6 +6,8 @@ Event: https://seattle.aitinkerers.org/hackathons/h_x_n9rN2gpzc
 
 Working brief: [HACKATHON.md](HACKATHON.md)
 
+Product brief: [docs/PRODUCT_BRIEF.md](docs/PRODUCT_BRIEF.md)
+
 ## Hackathon Target
 
 Build an AI application where the agent generates interactive UI at runtime, not a chatbot with a static interface.
