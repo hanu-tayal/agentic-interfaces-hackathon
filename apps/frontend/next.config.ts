@@ -7,6 +7,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 loadEnvConfig(path.resolve(here, "../.."));
 
 const nextConfig: NextConfig = {
+  experimental: {
+    esmExternals: "loose",
+  },
   // CopilotKit /api/copilotkit is served by our local stub route in
   // src/app/api/copilotkit/route.ts (Bedtime School Bridge does its agent
   // loop via /api/bedtime/generate). No BFF rewrite needed for this build.
