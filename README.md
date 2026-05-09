@@ -4,6 +4,8 @@ Private working repo for the Seattle AI Tinkerers Generative UI Global Hackathon
 
 Event: https://seattle.aitinkerers.org/hackathons/h_x_n9rN2gpzc
 
+Working brief: [HACKATHON.md](HACKATHON.md)
+
 ## Hackathon Target
 
 Build an AI application where the agent generates interactive UI at runtime, not a chatbot with a static interface.
