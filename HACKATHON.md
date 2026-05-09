@@ -82,3 +82,10 @@ Projects are evaluated globally after submissions close. Evaluation focuses on:
 - The team owns IP created during the event.
 - Pre-existing code is allowed, but must be disclosed.
 - Open-source tools, public APIs, and sponsor technologies are allowed.
+
+## Starter And Credits
+
+- Starter kit: https://go.copilotkit.ai/GenUITemplate
+- Kickoff video: https://youtu.be/6831vjw7Tao
+- Gemini credits: claim from the event portal, then keep keys and claim details out of the public repo.
+- Daytona credits: redeem from the event portal, then keep coupon details out of the public repo.

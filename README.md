@@ -8,6 +8,8 @@ Working brief: [HACKATHON.md](HACKATHON.md)
 
 Product brief: [docs/PRODUCT_BRIEF.md](docs/PRODUCT_BRIEF.md)
 
+Build decision: [docs/BUILD_DECISION.md](docs/BUILD_DECISION.md)
+
 ## Hackathon Target
 
 Build an AI application where the agent generates interactive UI at runtime, not a chatbot with a static interface.
