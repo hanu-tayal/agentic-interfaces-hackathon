@@ -1,64 +1,70 @@
-# Agentic Interfaces Hackathon
+# Bedtime School Bridge
 
-Public working repo for the Seattle AI Tinkerers Generative UI Global Hackathon on May 9, 2026.
+Public hackathon repo for the Seattle AI Tinkerers Generative UI Global Hackathon.
 
-Event: https://seattle.aitinkerers.org/hackathons/h_x_n9rN2gpzc
+Bedtime School Bridge turns daycare learning signals, meals, and home interests into a parent-approved bedtime learning interface: digital story, printable pages, voice read-aloud, guided YouTube recommendations, and mock toy-commerce approval.
 
-Working brief: [HACKATHON.md](HACKATHON.md)
+## Demo
 
-Product brief: [docs/PRODUCT_BRIEF.md](docs/PRODUCT_BRIEF.md)
+The current working demo is a Next.js app built on the Generative UI Global Hackathon starter kit.
 
-Build decision: [docs/BUILD_DECISION.md](docs/BUILD_DECISION.md)
+```bash
+npm install
+npm run dev:ui
+```
 
-Demo plan: [docs/DEMO_PLAN.md](docs/DEMO_PLAN.md)
+Open http://localhost:3010.
 
-Winning demo strategy: [docs/WINNING_DEMO_STRATEGY.md](docs/WINNING_DEMO_STRATEGY.md)
+The frontend-only path is intentional for the live hackathon demo. It avoids requiring Notion, Docker, or private mailbox data while still preserving the starter kit structure for CopilotKit, AG-UI/A2UI, MCP Apps, and future agent integration.
 
-Daycare bedtime context: [docs/DAYCARE_BEDTIME_CONTEXT.md](docs/DAYCARE_BEDTIME_CONTEXT.md)
+## What To Show
 
-Home media context: [docs/HOME_MEDIA_CONTEXT.md](docs/HOME_MEDIA_CONTEXT.md)
+1. Click **Build bridge** to call `/api/bedtime/generate`.
+2. Point at the generated UI manifest: provider, chosen layout, and renderer names.
+3. Switch tone/duration to show the manifest and rendered interface regenerate.
+4. Show the generated digital story, print pack, browser voice read-aloud, guided YouTube rail, and mock toy approval.
+5. Emphasize that raw Gmail, YouTube history, child photos, private links, secrets, and payment credentials are not committed.
 
-Print and publishing strategy: [docs/PRINT_AND_PUBLISHING.md](docs/PRINT_AND_PUBLISHING.md)
+## Why This Is Generative UI
 
-Print delivery requirement: [docs/PRINT_DELIVERY_REQUIREMENT.md](docs/PRINT_DELIVERY_REQUIREMENT.md)
+The UI is not a fixed dashboard. The generation endpoint emits a typed interface manifest:
 
-Toy commerce requirement: [docs/TOY_COMMERCE_REQUIREMENT.md](docs/TOY_COMMERCE_REQUIREMENT.md)
+- `layout`: which surfaces should exist tonight.
+- `modules`: the content and evidence for each surface.
+- `renderer`: the component type the agent chose for each module.
 
-Voice output requirement: [docs/VOICE_OUTPUT_REQUIREMENT.md](docs/VOICE_OUTPUT_REQUIREMENT.md)
+The frontend renders from that manifest, so the agent can compose a different interface for a short night, a calmer bedtime, a print-first evening, or a commerce/voice-heavy follow-up.
 
-YouTube learning requirement: [docs/YOUTUBE_LEARNING_REQUIREMENT.md](docs/YOUTUBE_LEARNING_REQUIREMENT.md)
+## LLM Providers
 
-## Hackathon Target
+This repo supports the starter kit's Gemini path and can be extended to Anthropic/Groq/Vertex. Do not commit keys.
 
-Build an AI application where the agent generates interactive UI at runtime, not a chatbot with a static interface.
+Useful local env names:
 
-Suggested tracks from the handbook:
+- `GEMINI_API_KEY` for Google AI Studio Gemini API.
+- `GOOGLE_APPLICATION_CREDENTIALS`, `GOOGLE_CLOUD_PROJECT`, and `GOOGLE_CLOUD_LOCATION` for Vertex AI.
+- `ANTHROPIC_API_KEY` or `GROQ_API_KEY` for fallback provider experiments.
 
-- Kill the Dashboard: agents generate the exact visualization, form, or control surface needed in the moment.
-- The Copilot That Ships: copilots render interactive UI for users to confirm, tweak, and execute inline.
-- Agent App Store: MCP-powered apps where agents discover, compose, and present multi-tool experiences.
-- No Designer, No Problem: the agent is the frontend.
+Gemini credits should be claimed through the event flow and stored only in local `.env` files.
 
-## Submission Checklist
+## Documentation
 
-The global submission is due by 6:00 PM Pacific on May 9, 2026.
+- [Hackathon requirements](HACKATHON.md)
+- [Product brief](docs/PRODUCT_BRIEF.md)
+- [Build decision](docs/BUILD_DECISION.md)
+- [Daycare context](docs/DAYCARE_BEDTIME_CONTEXT.md)
+- [Home media context](docs/HOME_MEDIA_CONTEXT.md)
+- [Print and publishing](docs/PRINT_AND_PUBLISHING.md)
+- [Voice output](docs/VOICE_OUTPUT_REQUIREMENT.md)
+- [Agent commerce and voice adapters](docs/AGENT_COMMERCE_AND_VOICE_ADAPTERS.md)
+- [Guided YouTube](docs/YOUTUBE_LEARNING_REQUIREMENT.md)
+- [Toy commerce](docs/TOY_COMMERCE_REQUIREMENT.md)
+- [Demo plan](docs/DEMO_PLAN.md)
+- [Winning demo strategy](docs/WINNING_DEMO_STRATEGY.md)
 
-- Project name
-- One-sentence pitch
-- Short description of what was built and why it is generative UI
-- Public GitHub repo link
-- 2-3 minute demo video link
-- Protocols used: A2UI, AG-UI, CopilotKit, MCP Apps, or other
-- Team member names and roles
+## Starter Kit
 
-Note: this repo is public for hackathon submission. Keep private data, raw emails, child photos, account history, and secret/coupon material out of commits.
+Based on the hackathon starter kit:
+https://github.com/jerelvelarde/Generative-UI-Global-Hackathon-Starter-Kit
 
-## Demo Rules
-
-- Show working code only.
-- Keep the demo to 2-3 minutes.
-- One person demos; the team can answer questions.
-
-## Build Notes
-
-Starter kits, boilerplate, and quickstart guides are expected in the event portal Message Center after kickoff.
+Starter docs remain in [dev-docs](dev-docs).
