@@ -97,9 +97,34 @@ async function tryVertexGemini(req: Parameters<typeof buildUserPrompt>[0]): Prom
   return { raw: tryParseJson(text), generatedBy: "gemini-2.5-flash (vertex)", rawText: text };
 }
 
-// Vertex Claude requires the separate @anthropic-ai/vertex-sdk package.
-// Skipped here to keep the dependency footprint tight; Vertex Gemini covers
-// the GCP-credits-drain case for this demo.
+async function tryVertexClaude(
+  req: Parameters<typeof buildUserPrompt>[0],
+  candidates: string[],
+): Promise<RouterResult> {
+  const project = process.env.GOOGLE_CLOUD_PROJECT;
+  if (!project) throw new Error("no GOOGLE_CLOUD_PROJECT");
+  const { AnthropicVertex } = await import("@anthropic-ai/vertex-sdk");
+  const region = process.env.ANTHROPIC_VERTEX_REGION ?? "global";
+  const client = new AnthropicVertex({ projectId: project, region });
+  let lastErr: Error | null = null;
+  for (const model of candidates) {
+    try {
+      const result = await client.messages.create({
+        model,
+        max_tokens: 1500,
+        temperature: 0.6,
+        system: SYSTEM,
+        messages: [{ role: "user", content: buildUserPrompt(req) }],
+      });
+      const block = result.content.find((c) => c.type === "text");
+      const text = block && block.type === "text" ? block.text : "";
+      return { raw: tryParseJson(text), generatedBy: `${model} (vertex/${region})`, rawText: text };
+    } catch (e) {
+      lastErr = e as Error;
+    }
+  }
+  throw lastErr ?? new Error("vertex claude: no candidates");
+}
 
 async function tryAnthropicDirect(req: Parameters<typeof buildUserPrompt>[0]): Promise<RouterResult> {
   const key = process.env.ANTHROPIC_API_KEY;
@@ -144,10 +169,14 @@ async function tryOpenRouter(req: Parameters<typeof buildUserPrompt>[0]): Promis
   return { raw: tryParseJson(text), generatedBy: "claude-sonnet-4.5 (openrouter)", rawText: text };
 }
 
-// Cascade: OpenRouter Claude Sonnet 4.5 (best quality, drains $5-10 OR balance)
-// → Vertex Gemini (drains $25k GCP credits) → AI Studio Gemini → Anthropic direct.
-// Anthropic direct goes last because the user's balance there is depleted.
+// Cascade: Vertex Claude Sonnet 4.6 (drains $25k GCP credit, latest Claude)
+// → Vertex Claude Opus 4.7 (same credit, escalation)
+// → OpenRouter Claude Sonnet 4.5 ($5-10 OR balance)
+// → Vertex Gemini (same GCP credit, Gemini fallback)
+// → AI Studio Gemini (free tier) → Anthropic direct (depleted, last resort).
 const PROVIDERS: Array<{ name: string; fn: (req: Parameters<typeof buildUserPrompt>[0]) => Promise<RouterResult> }> = [
+  { name: "vertex-claude-sonnet", fn: (r) => tryVertexClaude(r, ["claude-sonnet-4-6", "claude-sonnet-4-5@20250929"]) },
+  { name: "vertex-claude-opus", fn: (r) => tryVertexClaude(r, ["claude-opus-4-7", "claude-opus-4-5@20251101"]) },
   { name: "openrouter-claude-4-5", fn: tryOpenRouter },
   { name: "vertex-gemini", fn: tryVertexGemini },
   { name: "gemini-ai-studio", fn: tryGeminiAiStudio },
